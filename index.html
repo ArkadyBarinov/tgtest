@@ -21,7 +21,15 @@
   // Event callbacks.
   onSelect: instance => {
     // Show which date was selected.
-    console.log(instance.dateSelected)
+    console.log(instance)
+    console.log(
+      new Date(instance.dateSelected)
+        .toLocaleString("ru", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric"
+              })
+    )
   },
   onShow: instance => {
     console.log('Calendar showing.')
