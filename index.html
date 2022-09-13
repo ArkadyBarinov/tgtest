@@ -218,7 +218,18 @@
         flex-grow: 0;
         }
         .typeOT {
-          
+          padding: 30px;
+        }
+        .input {
+          padding: 30px;
+        }
+        .labeLL {
+          margin-top: 30px;
+        }
+        .iconka {
+          position:absolute;
+          right: 100px;
+          top: 280px;
         }
 
     </style>
@@ -236,12 +247,12 @@
           <legend>
         <spam>Какой тип отпуска вы хотите взять.?</spam></legend>
         <ul>
-          <li><input type="radio" id="O1" name="vacation" value="O1">
-            <label for="O1">Оплачиваемый</label></li>
-          <li><input type="radio" id="O2" name="vacation" value="O2">
-            <label for="O2">За свой счет</label></li>
-          <li><input type="radio" id="O3" name="vacation" value="O3">
-            <label for="O3">Другое</label></li>
+          <li><input class="input" type="radio" id="O1" name="vacation" value="O1">
+            <label class="labeLL" for="O1">Оплачиваемый</label></li>
+          <li><input class="input" type="radio" id="O2" name="vacation" value="O2">
+            <label  class="labeLL" for="O2">За свой счет</label></li>
+          <li><input class="input" type="radio" id="O3" name="vacation" value="O3">
+            <label  class="labeLL" for="O3">Другое</label></li>
          </ul>
         </fieldset>
       </div>
@@ -250,7 +261,7 @@
       </div>
 
       <div class="input"><input id="datepicker"/>
-        <span><img src = "calendar.svg" alt="SVG" width="24" height="24"></span>
+        <span><img class="iconka" src = "calendar.svg" alt="SVG" width="24" height="24"></span>
       </div>
       <script>
         const picker = new easepick.create({
