@@ -227,11 +227,8 @@
           margin-top: 30px;
         }
         .iconka {
-          position:absolute;
-          right: 195px;
-          top: 310px;
         }
-
+        
     </style>
 </head>
 <body>
@@ -247,11 +244,11 @@
           <legend>
         <spam>Какой тип отпуска вы хотите взять.?</spam></legend>
         <ul>
-          <li><input class="input" type="radio" id="O1" name="vacation" value="O1">
+          <li><input class="input" type="radio" id="custom" onclick="toggleRadio(true)" name="vacation" value="O1">
             <label class="labeLL" for="O1">Оплачиваемый</label></li>
-          <li><input class="input" type="radio" id="O2" name="vacation" value="O2">
+          <li><input class="input" type="radio" id="custom" onclick="toggleRadio(true)" name="vacation" value="O2">
             <label  class="labeLL" for="O2">За свой счет</label></li>
-          <li><input class="input" type="radio" id="O3" name="vacation" value="O3">
+          <li><input class="input" type="radio" id="custom" onclick="toggleRadio(true)" name="vacation" value="O3">
             <label  class="labeLL" for="O3">Другое</label></li>
          </ul>
         </fieldset>
@@ -260,7 +257,7 @@
         <spam class="twodate">Выберите 2 даты в календаре: дату начала и завершения отпуска</spam>
       </div>
 
-      <div class="input"><input id="datepicker"/>
+      <div class="input"><input id="datepicker" disabled>
         <span><img class="iconka" src = "calendar.svg" alt="SVG" width="24" height="24"></span>
       </div>
       <script>
@@ -382,3 +379,33 @@ bot.launch()
 </script>
 })
 
+<!-- <input name="group1" id="dummy" type="radio" />Dummy Message
+<input name="group1" id="customMessageRadioButton" type="radio" />Custom Message
+<textarea disabled id="customMessageTextArea"></textarea>
+<script>
+document.getElementById('customMessageRadioButton').addEventListener('change', function() {
+  if (document.getElementById('customMessageRadioButton').checked) {
+    document.getElementById('customMessageTextArea').removeAttribute("disabled");
+    document.getElementById('customMessageTextArea').focus();
+  }
+
+  if (!document.getElementById('customMessageRadioButton').checked) {
+    document.getElementById('customMessageTextArea').setAttribute("disabled", "true");
+  }
+});
+</script> -->
+
+<!-- <input name="group1" id="dummy" type="radio" onclick="toggleRadio(false)"/>Dummy Message -->
+  <script>
+    
+    function toggleRadio(flag){
+      if(!flag) {
+        document.getElementById('datepicker').setAttribute("disabled", "true");
+      } else {
+        document.getElementById('datepicker').removeAttribute("disabled");
+        document.getElementById('datepicker').focus();
+      }
+      
+    }
+
+  </script>
