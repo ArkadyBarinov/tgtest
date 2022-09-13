@@ -185,6 +185,21 @@
         small {
             font-size: 12px;
         }
+        .forma {
+        background-color: #2678b6;
+        }
+        .forma:hover {
+        background-color: #50a8eb;
+        }
+        button:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px red;
+        }
+        button:active {
+        background-color: #333;
+        border-color: #333;
+        color: #eee;
+        }
     </style>
 </head>
 <body>
@@ -244,7 +259,7 @@
             </script>
 
       <div id="some-id" style="position: relative;"></div>
-      <div>
+      <!-- <div>
         
       <div class="confirm">
         <fieldset>
@@ -256,7 +271,7 @@
           <li><label for="mail">Дата конца отпуска:</label></li>
         </ul>
         </fieldset>
-      </div></div>
+      </div></div> -->
       <div>
         <input class="forma" type="submit" value="Отправить форму">
       </div>
