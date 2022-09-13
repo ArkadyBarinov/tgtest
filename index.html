@@ -222,23 +222,23 @@
             ],
             zIndex: 10,
             lang: "ru-RU",
+            format: "DD.MM.YYYY",
+            header: "Выбирайте в любом порядке",
             AmpPlugin: {
+                dropdown: {
+                    months: true,
+                    years: true,
+                    minYear: 2020,
+                    maxYear: 2101
+                },
                 resetButton: true
             },
             RangePlugin: {
-                delimiter: "&"
-            },
-            LockPlugin: {
-                minDate: "2022-09-01T00:00:00.000Z",
-                maxDate: "2101-01-13T00:00:00.000Z",
-                selectForward: true,
-                selectBackward: true,
-                inseparable: true
+                delimiter: " & "
             },
             plugins: [
                 "AmpPlugin",
-                "RangePlugin",
-                "LockPlugin"
+                "RangePlugin"
             ]
         })
             </script>
