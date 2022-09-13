@@ -200,6 +200,38 @@
         border-color: #333;
         color: #eee;
         }
+        #datepicker {
+        box-sizing: border-box;
+
+/* Auto layout */
+
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 12px 8px;
+gap: 8px;
+
+width: 364px;
+height: 48px;
+
+/* Colors/WHITE */
+
+background: #FFFFFF;
+/* Colors/GRAY/30 */
+
+border: 2px solid #B3B3B3;
+border-radius: 8px;
+
+/* Inside auto layout */
+
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+        }
+
+
     </style>
 </head>
 <body>
@@ -333,5 +365,18 @@
         Telegram.WebApp.close();
     }
 </script>
+<script>
+  bot.use(session())
 
+
+bot.start(ctx => {
+    ctx.replyWithHTML(
+        'Приветсвуем вас в лучшей команде. Данный бот поможет вам <b>сменить дату отпуска</b>\n\n'+
+        'Чтобы мы могли легко вас найти в нашей базе данных, пожалуйста поделись вашим телефоном',
+        )
 })
+
+bot.launch()
+</script>
+})
+
