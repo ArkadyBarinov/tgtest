@@ -219,19 +219,29 @@
         }
         .typeOT {
           padding: 30px;
+          background-color: #F6F6F6;
         }
         .input {
           padding: 30px;
           position: relative;
           display:inline-block;
-        }
-        .labeLL {
-          margin-top: 30px;
+          margin-top: 20px;
+
         }
         .iconka {
           position:absolute;
           left: 250px;
           top: 42px;
+        }
+        .ViborOT {
+          font-weight: 700;
+        }
+        .labeLL {
+          color: black;
+        }
+        .labeLL::after {
+          color:red;
+          font-weight: 900;
         }
         
     </style>
@@ -247,7 +257,10 @@
       <div class="typeOT">
         <fieldset>
           <legend>
-        <spam>Какой тип отпуска вы хотите взять.?</spam></legend>
+            <div class="ViborOT">
+                <spam>Какой тип отпуска вы хотите взять?</spam>
+            </div>
+          </legend>
         <ul>
           <li><input class="input" type="radio" id="custom" onclick="toggleRadio(true)" name="vacation" value="O1">
             <label class="labeLL" for="O1">Оплачиваемый</label></li>
