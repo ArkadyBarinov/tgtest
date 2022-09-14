@@ -196,8 +196,8 @@
         box-shadow: 0 0 0 3px red;
         }
         .forma:active {
-        background-color: #333;
-        border-color: #333;
+        background-color: rgb(9, 63, 226);
+        border-color: rgb(59, 138, 242);
         color: #eee;
         }
         #datepicker {
@@ -219,13 +219,20 @@
         }
         .typeOT {
           padding: 30px;
-          background-color: #F6F6F6;
         }
         .input {
           padding: 30px;
           position: relative;
           display:inline-block;
           margin-top: 20px;
+
+        }
+        .put {
+          padding: 30px;
+          position: relative;
+          display:inline-block;
+          margin-top: 20px;
+          border: 2px solid red;
 
         }
         .iconka {
@@ -262,11 +269,11 @@
             </div>
           </legend>
         <ul>
-          <li><input class="input" type="radio" id="custom" onclick="toggleRadio(true)" name="vacation" value="O1">
+          <li><input class="put" type="radio" id="custom" onclick="toggleRadio(true)" name="vacation" value="O1">
             <label class="labeLL" for="O1">Оплачиваемый</label></li>
-          <li><input class="input" type="radio" id="custom" onclick="toggleRadio(true)" name="vacation" value="O2">
+          <li><input class="put" type="radio" id="custom" onclick="toggleRadio(true)" name="vacation" value="O2">
             <label  class="labeLL" for="O2">За свой счет</label></li>
-          <li><input class="input" type="radio" id="custom" onclick="toggleRadio(true)" name="vacation" value="O3">
+          <li><input class="put" type="radio" id="custom" onclick="toggleRadio(true)" name="vacation" value="O3">
             <label  class="labeLL" for="O3">Другое</label></li>
          </ul>
         </fieldset>
