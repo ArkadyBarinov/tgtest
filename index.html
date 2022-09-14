@@ -227,14 +227,6 @@
           margin-top: 20px;
 
         }
-        .put {
-          padding: 30px;
-          position: relative;
-          display:inline-block;
-          margin-top: 20px;
-          border: 2px solid red;
-
-        }
         .iconka {
           position:absolute;
           left: 250px;
@@ -243,11 +235,35 @@
         .ViborOT {
           font-weight: 700;
         }
-        .labeLL::after {
-          color:red;
-          font-weight: 900;
+        .formRadio {
+          margin-right: 10px;
+          padding: 10px;
+        }
+        .formRadio label {
+          display: inline-block;
+          cursor: pointer;
+          padding: 0px 15px;
+          line-height: 34px;
+          border: 1px solid #999;
+          border-radius: 6px;
+          user-select: none;
         }
         
+        /* Checked */
+        .formRadio input[type=radio]:checked + label {
+          background: #ffe0a6;
+        }
+        
+        /* Hover */
+        .formRadio label:hover {
+          color: #666;
+        }
+        /* Disabled */
+        .formRadio input[type=radio]:disabled + label {
+          background: #efefef;
+          color: #666;
+        }
+ 
     </style>
 </head>
 <body>
@@ -266,12 +282,22 @@
             </div>
           </legend>
         <ul>
+
+          <div class="formRadio">
           <li><input class="put" type="radio" id="custom" onclick="toggleRadio(true)" name="vacation" value="O1">
             <label class="labeLL" for="O1">Оплачиваемый</label></li>
+          </div>
+
+          <div class="formRadio">
           <li><input class="put" type="radio" id="custom" onclick="toggleRadio(true)" name="vacation" value="O2">
             <label  class="labeLL" for="O2">За свой счет</label></li>
+            </div>
+
+            <div class="formRadio">
           <li><input class="put" type="radio" id="custom" onclick="toggleRadio(true)" name="vacation" value="O3">
             <label  class="labeLL" for="O3">Другое</label></li>
+            </div>
+            
          </ul>
         </fieldset>
       </div>
