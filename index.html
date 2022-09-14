@@ -232,7 +232,7 @@
           left: 250px;
           top: 42px;
         }
-        .ViborOT {
+        /* .ViborOT {
           font-weight: 700;
         }
         .formRadio {
@@ -250,23 +250,114 @@
         }
         
         /* Checked */
-        .formRadio input[type=radio]:checked + label {
+        /* .formRadio input[type=radio]:checked + label {
           background: #ffe0a6;
           font-weight: 900;
           font-size: 20px;
           color:#545
-        }
+        } */
         
         /* Hover */
-        .formRadio label:hover {
+        /* .formRadio label:hover {
           color: #666;
-        }
+        } */
         /* Disabled */
-        .formRadio input[type=radio]:disabled + label {
+        /* .formRadio input[type=radio]:disabled + label {
           background: #efefef;
           color: #666;
-        }
- 
+        } */ 
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /* для элемента input c type="radio" */
+  .put {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+  }
+
+  /* для элемента label связанного с .custom-radio */
+  .put+label {
+    display: inline-flex;
+    align-items: center;
+    user-select: none;
+  }
+
+  /* создание в label псевдоэлемента  before со следующими стилями */
+  .put+label::before {
+    content: '';
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+    flex-grow: 0;
+    border: 1px solid #adb5bd;
+    border-radius: 50%;
+    margin-right: 0.5em;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 50% 50%;
+  }
+
+  /* стили при наведении курсора на радио */
+  .put:not(:disabled):not(:checked)+label:hover::before {
+    border-color: #b3d7ff;
+  }
+
+  /* стили для активной радиокнопки (при нажатии на неё) */
+  .put:not(:disabled):active+label::before {
+    background-color: #b3d7ff;
+    border-color: #b3d7ff;
+  }
+
+  /* стили для радиокнопки, находящейся в фокусе */
+  .put:focus+label::before {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+
+  /* стили для радиокнопки, находящейся в фокусе и не находящейся в состоянии checked */
+  .put:focus:not(:checked)+label::before {
+    border-color: #80bdff;
+  }
+
+  /* стили для радиокнопки, находящейся в состоянии checked */
+  .put:checked+label::before {
+    border-color: #0b76ef;
+    background-color: #0b76ef;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+  }
+
+  /* стили для радиокнопки, находящейся в состоянии disabled */
+  .put:disabled+label::before {
+    background-color: #e9ecef;
+  }
+
+    body {
+      padding: 20px 50px;
+    }
+
+    .formRadio {
+      margin-bottom: 0.4em;
+      padding: 10px;
+    }
+    .dfdf {
+      text-align: start;
+    }
+
+
     </style>
 </head>
 <body>
@@ -283,24 +374,24 @@
                 <spam>Какой тип отпуска вы хотите взять?</spam>
             </div>
 
-        <ul>
+        <div class="dfdf">
 
           <div class="formRadio">
-          <li><input class="put" type="radio" id="custom" onclick="toggleRadio(true)" name="vacation" value="O1">
-            <label class="labeLL" for="O1">Оплачиваемый</label></li>
+          <input class="put" type="radio" id="O1" onclick="toggleRadio(true)" name="vacation" value="O1">
+            <label class="labeLL" for="O1">Оплачиваемый</label>
           </div>
 
           <div class="formRadio">
-          <li><input class="put" type="radio" id="custom" onclick="toggleRadio(true)" name="vacation" value="O2">
-            <label  class="labeLL" for="O2">За свой счет</label></li>
+          <input class="put" type="radio" id="O2" onclick="toggleRadio(true)" name="vacation" value="O2">
+            <label  class="labeLL" for="O2">За свой счет</label>
             </div>
 
             <div class="formRadio">
-          <li><input class="put" type="radio" id="custom" onclick="toggleRadio(true)" name="vacation" value="O3">
-            <label  class="labeLL" for="O3">Другое</label></li>
+          <input class="put" type="radio" id="O3" onclick="toggleRadio(true)" name="vacation" value="O3">
+            <label  class="labeLL" for="O3">Другое</label>
             </div>
-
-         </ul>
+          </div>
+        
       </div>
       <div>
         <spam class="twodate">Выберите 2 даты в календаре: дату начала и завершения отпуска</spam>
