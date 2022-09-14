@@ -222,11 +222,16 @@
         }
         .input {
           padding: 30px;
+          position: relative;
+          display:inline-block;
         }
         .labeLL {
           margin-top: 30px;
         }
         .iconka {
+          position:absolute;
+          left: 250px;
+          top: 42px;
         }
         
     </style>
@@ -378,24 +383,6 @@ bot.start(ctx => {
 bot.launch()
 </script>
 })
-
-<!-- <input name="group1" id="dummy" type="radio" />Dummy Message
-<input name="group1" id="customMessageRadioButton" type="radio" />Custom Message
-<textarea disabled id="customMessageTextArea"></textarea>
-<script>
-document.getElementById('customMessageRadioButton').addEventListener('change', function() {
-  if (document.getElementById('customMessageRadioButton').checked) {
-    document.getElementById('customMessageTextArea').removeAttribute("disabled");
-    document.getElementById('customMessageTextArea').focus();
-  }
-
-  if (!document.getElementById('customMessageRadioButton').checked) {
-    document.getElementById('customMessageTextArea').setAttribute("disabled", "true");
-  }
-});
-</script> -->
-
-<!-- <input name="group1" id="dummy" type="radio" onclick="toggleRadio(false)"/>Dummy Message -->
   <script>
     
     function toggleRadio(flag){
