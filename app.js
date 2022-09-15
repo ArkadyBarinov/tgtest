@@ -1,0 +1,200 @@
+import express, { query } from 'express'
+import { PORT, TOKEN } from './config.js'
+import Telegraf from 'telegraf'
+import session from 'telegraf/session.js'
+import { getMainMenu, NumberMenu, yesNoKeyboard, NumberCall } from './keyboards.js'
+import { getRandomIntInclusive } from './db.js'
+import Calendar from 'telegraf-calendar-telegram'
+const app = express()
+const bot = new Telegraf(TOKEN)
+// instantiate the calendar
+const date = new Date()
+date.setDate(date.getDate() + 14);
+var onlidate=[]
+const calendar = new Calendar(bot,{
+    minDate: date,
+    startWeekDay: 1,
+    weekDayNames: ["П", "В", "С", "Ч", "П", "С", "В"],
+    monthNames: [
+        "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+        "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+    ],
+})
+
+bot.use(session())
+
+
+bot.start(ctx => {
+    ctx.replyWithHTML(
+        `Приветсвуем вас <b>${ctx.message.from.first_name}</b> в лучшей команде. Данный бот поможет вам <b>сменить дату отпуска</b>\n\n`+
+        `Чтобы мы могли легко вас найти в нашей базе данных, пожалуйста поделись вашим телефоном`,
+        NumberMenu())
+})
+// bot.delete_message(message.chat.id, message.message_id)
+// bot.deleteMessage(msg.chat.id, messageId)
+
+// bot.on('message', function (msg) {//при получении сообщения
+//     var text=msg.text;//получаем текст сообщения
+//     if( text.indexOf('СЛОВО') >= 0){//проверяем на наличие слова
+//         var chatId = msg.chat.id;//получаем ChatId группы
+//         var msgId = msg.message_id;//получаем Id сообщения
+//         bot.deleteMessage(chatId,msgId);//удаляем сообщение
+//     }
+// });
+
+
+//   bot.hears("Мне повезет", (ctx) => {
+//      kolvod = getRandomIntInclusive()
+//   })
+
+
+bot.hears('Отмена', async ctx => {
+    ctx.replyWithHTML(
+        `<b>Этот бот создан для сотрудников кампании Sokolov:</b>\nЧтобы мы могли быть уверены что вы <b>${ctx.message.from.first_name} ${ctx.message.from.last_name}</b> сотрудник этой кампании , поделитесь номером телефона\n`
+    )
+})
+bot.hears('Поделиться номером телефона', async ctx => {
+    ctx.reply('Вы точно хотите слить ваши данные в сеть?', { reply_markup: { keyboard: [[{text: '📲 поделиться номером', request_contact: true}]], force_reply: true } })
+
+    bot.on("contact", (data) => {
+        console.log(data.message.chat.id);
+        ctx.replyWithHTML(
+            '<b>Спасибо за доверие:</b>\nОжидайте пока мы проверим вас по базе данных\n',
+            getMainMenu()
+        )
+    })
+})
+
+
+bot.hears('Узнать дату отпуска', async ctx => {
+    ctx.replyWithHTML(
+        '<b>Ваш отпуск состоится:</b>\nВ базе отсутствуют данные о вашем отпуске,немного подождите, если проблема осталась, то обратитесь к вашему руководству\n'
+    )
+})
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+
+
+bot.hears('Сменить дату отпуска', async ctx => {
+    try {
+        ctx.replyWithHTML(
+        'Воспользуйтесь данным календарем, чтобы выбрать <b>день начала</b> вашего отпуска',
+    )
+    await ctx.reply("Просто выберите день начала вашего отпуска", calendar.getCalendar());
+
+    calendar.setDateListener((context, date) => {
+        // context.reply(date)
+        onlidate=date.split('T')
+        console.log(date.split(','));
+        ctx.replyWithHTML('<b>А теперь:</b>\n Укажите продолжительность отпуска в днях:\n', NumberCall())
+    })
+    await bot.on('text', ctx => {
+
+    console.log(date),
+    console.log(ctx),
+    ctx.replyWithHTML(
+        `Я, <b>${ctx.message.from.first_name} ${ctx.message.from.last_name}</b>, подтвеждаю смену даты отпуска на начало ${onlidate} и с продолжительностью ${ctx.message.text} день(дня((дней)):\n\n`+
+        `<b>(отправить документ на подписание)</b>`,yesNoKeyboard())
+})
+
+    } catch (error) {
+        console.error(error)
+        
+    }
+})
+
+bot.action("yes", (ctx) => {
+    ctx.reply('Ваше заявление по смене дат отпуска успешно получено и в данный момент находится на рассмотрении',getMainMenu(),ctx.deleteMessage())
+})
+
+bot.action("no", (ctx) => {
+    ctx.reply('Все осталось как прежде',getMainMenu(),ctx.deleteMessage())
+    
+})
+
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+
+
+bot.hears('Смотивируй меня на работу без отпуска', ctx => {
+    ctx.replyWithPhoto(
+        'https://img2.goodfon.ru/wallpaper/nbig/7/ec/justdoit-dzhastduit-motivaciya.jpg',
+        {
+            caption: 'Не вздумай сдаваться!'
+        }
+    )
+})
+
+
+//  bot.action("Мне повезет", (ctx) => {
+//     kolvod = getRandomIntInclusive()
+//  })
+
+
+
+// bot.hears("Мне повезет", (ctx) => {
+//     return ctx.getRandomIntInclusive
+//  } );
+// ;
+
+
+bot.hears("Хочу уменьшить свой уровень стресса", (ctx) => {
+    return ctx.replyWithAudio({ source: "./song.mp3" },
+    {
+        caption:'Успокойтесь и снова за работу'
+    }
+    );
+  });
+  bot.hears("Зачем", (ctx) => {
+    return ctx.replyWithVideo({ source: "./s1.gif" },
+    {
+        caption:' '
+    }
+    );
+  });
+
+// bot.action(['yes', 'no', 'change your choice'], ctx => {
+//     if (ctx.callbackQuery.data === 'yes') {
+//         addTask(ctx.session.taskText)
+//         ctx.editMessageText('Ваша заявка на смену отпуска успешно отправлена, ожидайте')
+//     } else {
+//         ctx.deleteMessage()
+//     }
+// })
+
+
+
+
+
+// bot.help((ctx) => ctx.reply('Send me a sticker'));
+bot.help(ctx => {ctx.reply("Да, чем я могу помочь");})
+bot.on('sticker', (ctx) => ctx.reply('👍'));
+bot.hears('привет', (ctx) => ctx.reply(`привет ${ctx.message.from.first_name} ${ctx.message.from.last_name}`));
+bot.hears('что ты можешь?', (ctx) => ctx.reply('я могу все'));
+bot.on('photo', (ctx) => ctx.reply('Вы зачем то прислали это изображение, хотя я не просил этого'));
+bot.hears('узнать отпуск', (ctx) => ctx.reply('без проблем'));
+bot.on('edited_message', ctx => {
+    ctx.reply('Вы успешно изменили сообщение')
+})
+bot.on('voice', ctx => {
+    ctx.reply('Какой чудный голос')
+})
+bot.command('time', ctx => {
+    ctx.reply(String(new Date()))
+})
+bot.command("whoami", (ctx) => {
+    const { id, username, first_name, last_name } = ctx.from;
+    return ctx.replyWithMarkdown(`Кто ты в телеграмме:
+  *id* : ${id}
+  *username* : ${username}
+  *Имя* : ${first_name}
+  *Фамилия* : ${last_name}
+  *chatId* : ${ctx.chat.id}`);
+  });
+bot.launch()
+app.listen(PORT, () => console.log(`My server is running on port ${PORT}`))
