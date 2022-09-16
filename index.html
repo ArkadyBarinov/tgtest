@@ -396,18 +396,19 @@
             zIndex: 10,
             lang: "ru-RU",
             format: "DD.MM.YYYY",
-            header: "Выбирайте в любом порядке",
+            calendars: 2,
+            header: "Выбирайте дни в любом порядке",
             AmpPlugin: {
                 dropdown: {
                     months: true,
                     years: true,
                     minYear: 2020,
-                    maxYear: 2101
+                    maxYear: 2050
                 },
                 resetButton: true
             },
             RangePlugin: {
-                delimiter: " & "
+                delimiter: " % "
             },
             plugins: [
                 "AmpPlugin",
@@ -743,4 +744,3 @@ bot.launch()
     }
 
   </script>
-  
