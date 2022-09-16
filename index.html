@@ -34,20 +34,17 @@
             margin: 0;
             padding: 0;
             color-scheme: var(--tg-color-scheme);
-
             display: flex;
             flex-direction: column;
             align-items: center;
             font-size: 18px;
         }
-
       .button{
          background: var(--tg-theme-button-color);
          color: var(--tg-theme-button-text-color);
          border: none;
          font-size: 18px;
       }
-
       .button:not(:last-child){
          margin-bottom: 20px
       }
@@ -55,8 +52,6 @@
       #usercard{
          text-align: center;
       }
-
-
         button {
             display: block;
             width: 100%;
@@ -69,7 +64,6 @@
             color: var(--tg-theme-button-text-color, #ffffff);
             cursor: pointer;
         }
-
         button[disabled] {
             opacity: 0.6;
             cursor: auto;
@@ -97,7 +91,6 @@
             padding: 16px 20px;
             text-transform: uppercase;
         }
-
         section {
             padding: 15px 15px 65px;
             text-align: center;
@@ -105,61 +98,9 @@
         p {
             margin: 40px 0 15px;
         }
-        
-        .viewport_border,
-        .viewport_stable_border {
-            position: fixed;
-            left: 0;
-            right: 0;
-            top: 0;
-            height: var(--tg-viewport-height, 100vh);
-            pointer-events: none;
-        }
-
-        .viewport_stable_border {
-            height: var(--tg-viewport-stable-height, 100vh);
-        }
-
-        .viewport_border:before,
-        .viewport_stable_border:before {
-            content: attr(text);
-            display: inline-block;
-            position: absolute;
-            background: gray;
-            right: 0;
-            top: 0;
-            font-size: 7px;
-            padding: 2px 4px;
-            vertical-align: top;
-        }
-
-        .viewport_stable_border:before {
-            background: green;
-            left: 0;
-            right: auto;
-        }
-
-        .viewport_border:after,
-        .viewport_stable_border:after {
-            content: '';
-            display: block;
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            border: 2px dashed gray;
-        }
-
-        .viewport_stable_border:after {
-            border-color: green;
-        }
         .qs-datepicker-container {
           display:block;
           margin-top: 200px;
-        }
-        small {
-            font-size: 12px;
         }
         .forma {
           background: #000000;
@@ -209,7 +150,6 @@
           position: relative;
           display:inline-block;
           margin-top: 20px;
-
         }
         .iconka {
           position:absolute;
@@ -233,110 +173,86 @@
           border-radius: 6px;
           user-select: none;
         }
-        
-        /* Checked */
         .formRadio input[type=radio]:checked + label {
           background: rgb(9, 187, 0);
           font-weight: 900;
           font-size: 20px;
           color:#545
         }
-        
-        /* Hover */
         .formRadio label:hover {
           color: #666;
         }
-        /* Disabled */
         .formRadio input[type=radio]:disabled + label {
           background: #efefef;
           color: #666;
         } 
-        
-
-
-
-
-
-        /* для элемента input c type="radio" */
-  .put {
-    position: absolute;
-    z-index: -1;
-    opacity: 0;
-  }
-
-  /* для элемента label связанного с .custom-radio */
-  .put+label {
-    display: inline-flex;
-    align-items: center;
-    user-select: none;
-  }
-
-  /* создание в label псевдоэлемента  before со следующими стилями */
-  .put+label::before {
-    content: '';
-    display: inline-block;
-    width: 1em;
-    height: 1em;
-    flex-shrink: 0;
-    flex-grow: 0;
-    border: 1px solid #adb5bd;
-    border-radius: 50%;
-    margin-right: 0.5em;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: 50% 50%;
-  }
-
-  /* стили при наведении курсора на радио */
-  .put:not(:disabled):not(:checked)+label:hover::before {
-    border-color: #b3d7ff;
-  }
-
-  /* стили для активной радиокнопки (при нажатии на неё) */
-  .put:not(:disabled):active+label::before {
-    background-color: #b3d7ff;
-    border-color: #b3d7ff;
-  }
-
-  /* стили для радиокнопки, находящейся в фокусе */
-  .put:focus+label::before {
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  }
-
-  /* стили для радиокнопки, находящейся в фокусе и не находящейся в состоянии checked */
-  .put:focus:not(:checked)+label::before {
-    border-color: #80bdff;
-  }
-
-  /* стили для радиокнопки, находящейся в состоянии checked */
-  .put:checked+label::before {
-    border-color: #0b76ef;
-    background-color: #0b76ef;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
-  }
-
-  /* стили для радиокнопки, находящейся в состоянии disabled */
-  .put:disabled+label::before {
-    background-color: #e9ecef;
-  }
-    .formRadio {
-      margin-bottom: 0.4em;
-      padding: 10px;
-    }
-    .dfdf {
-      text-align: start;
-    }
+        .put {
+          position: absolute;
+          z-index: -1;
+          opacity: 0;
+        }
+        .put+label {
+          display: inline-flex;
+          align-items: center;
+          user-select: none;
+        }
+        .put+label::before {
+          content: '';
+          display: inline-block;
+          width: 1em;
+          height: 1em;
+          flex-shrink: 0;
+          flex-grow: 0;
+          border: 1px solid #adb5bd;
+          border-radius: 50%;
+          margin-right: 0.5em;
+          background-repeat: no-repeat;
+          background-position: center center;
+          background-size: 50% 50%;
+        }
+        /* стили при наведении курсора на радио */
+        .put:not(:disabled):not(:checked)+label:hover::before {
+          border-color: #b3d7ff;
+        }
+        /* стили для активной радиокнопки (при нажатии на неё) */
+        .put:not(:disabled):active+label::before {
+          background-color: #b3d7ff;
+          border-color: #b3d7ff;
+        }
+        /* стили для радиокнопки, находящейся в фокусе */
+        .put:focus+label::before {
+          box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        /* стили для радиокнопки, находящейся в фокусе и не находящейся в состоянии checked */
+        .put:focus:not(:checked)+label::before {
+          border-color: #80bdff;
+        }
+        /* стили для радиокнопки, находящейся в состоянии checked */
+        .put:checked+label::before {
+          border-color: #0b76ef;
+          background-color: #0b76ef;
+          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+        }
+        /* стили для радиокнопки, находящейся в состоянии disabled */
+        .put:disabled+label::before {
+          background-color: #e9ecef;
+        }
+        .formRadio {
+          margin-bottom: 0.4em;
+          padding: 10px;
+        }
+        .dfdf {
+          text-align: start;
+        }
     </style>
 </head>
 <body>
   <section>
     <div>
       <div class="typeOT">
-
             <div class="ViborOT">
                 <spam>Какой тип отпуска вы хотите взять?</spam>
             </div>
-
         <div class="dfdf">
 
           <div class="formRadio">
@@ -404,26 +320,24 @@
     <button id="btn" class="button">Show/Hide Main Button</button> <!--Кнопка, чтобы скрыть / показать основную кнопку-->
     <button id="btnED" class="button">Enable/Disable Main Button</button> <!--Кнопка, чтобы сделать кнопку активной/неактивной-->
 </section>
+
 <script>
 const logichata = {
   id:1,
   type:2,
   dates:"232432"
 };
-
 fetch("/api.v3.change-user-otpusk", {
   method:"PUT",
   body: JSON.parse({ data })
 })
-
   .then(res => res.json())
   .then(json => {
     console.log(json);
   })
-
 </script>
+
   <script>
-    
     function toggleRadio(flag){
       if(!flag) {
         document.getElementById('datepicker').setAttribute("disabled", "true");
@@ -433,7 +347,6 @@ fetch("/api.v3.change-user-otpusk", {
       }
       
     }
-
   </script>
 
 <script>
@@ -474,22 +387,16 @@ fetch("/api.v3.change-user-otpusk", {
      tg.sendData("some string that we need to send"); 
      //при клике на основную кнопку отправляем данные в строковом виде
   });
-
-
   let usercard = document.getElementById("usercard"); //получаем блок usercard 
-
   let profName = document.createElement('p'); //создаем параграф
   profName.innerText = `${tg.initDataUnsafe.user.first_name}
   ${tg.initDataUnsafe.user.last_name}
   ${tg.initDataUnsafe.user.username} (${tg.initDataUnsafe.user.language_code})`;
   //выдем имя, "фамилию", через тире username и код языка
   usercard.appendChild(profName); //добавляем 
-
   let userid = document.createElement('p'); //создаем еще параграф 
   userid.innerText = `${tg.initDataUnsafe.user.id}`; //показываем user_id
   usercard.appendChild(userid); //добавляем
-
-
   //работает только в attachment menu
   // let pic = document.createElement('img'); //создаем img
   // pic.src = tg.initDataUnsafe.user.photo_url; //задаём src 
