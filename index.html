@@ -187,19 +187,27 @@
             font-size: 12px;
         }
         .forma {
-        background-color: #2678b6;
+          background: #000000;
+          border-radius: 8px;
+          padding: 16px;
+          gap: 12px;
+          width: 364px;
+          height: 56px;
+        }
+        .GlButton {
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
         }
         .forma:hover {
-        background-color: #50a8eb;
+          background: #404040;
         }
         .forma:focus {
         outline: none;
-        box-shadow: 0 0 0 3px red;
         }
         .forma:active {
-        background-color: rgb(9, 63, 226);
-        border-color: rgb(59, 138, 242);
-        color: #eee;
+        background: #595959;
         }
         #datepicker {
         box-sizing: border-box;
@@ -411,7 +419,7 @@
             </script>
 
       <div id="some-id" style="position: relative;"></div>
-      <div>
+      <div class="GlButton" >
         <input class="forma" type="submit" value="Отправить форму">
       </div>
     </div>
