@@ -111,6 +111,8 @@
           height: 56px;
         }
         .GlButton {
+          box-sizing: border-box;
+          position: relative;
           display: flex;
           flex-direction: row;
           justify-content: center;
@@ -244,6 +246,33 @@
         .dfdf {
           text-align: start;
         }
+        .success {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          padding: 8px;
+          width: 224px;
+          height: 40px;
+          background: #E2F5D6;
+          border-radius: 8px;
+        }
+        .nosuccess {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          padding: 8px;
+          width: 224px;
+          height: 40px;
+          background: #F9D6D2;
+          border-radius: 8px;
+        }
+        .iconkaGX {
+          position:absolute;
+          left: 181px;
+          top: 9px;
+        }
     </style>
 </head>
 <body>
@@ -309,13 +338,24 @@
         })
             </script>
 
-      <div id="some-id" style="position: relative;"></div>
+      <div id="some-id" style="position: relative;">
+      </div>
       <div class="GlButton" >
         <input class="forma" type="submit" value="Отправить форму">
       </div>
     </div>
     <div id="usercard"> <!--Карта профиля, человека, который к нам обратился-->
     </div>
+
+    <div class="GlButton" >
+      <input class="success" type="submit" value="Успех   ╳">
+      <span><img class="iconkaGX" src = "galka.png" alt="galka" width="24" height="24"></span>
+    </div>
+    <div class="GlButton" >
+      <input class="nosuccess" type="submit" value="Ошибка╳">
+      <img class="iconkaGX" src = "znak.png" alt="znak" width="24" height="24">
+    </div>
+
     <a class="link" href="https://sokolov.ru">Link</a> <!--Просто ссылка для проверки-->
     <button id="btn" class="button">Show/Hide Main Button</button> <!--Кнопка, чтобы скрыть / показать основную кнопку-->
     <button id="btnED" class="button">Enable/Disable Main Button</button> <!--Кнопка, чтобы сделать кнопку активной/неактивной-->
@@ -401,4 +441,12 @@ fetch("/api.v3.change-user-otpusk", {
   // let pic = document.createElement('img'); //создаем img
   // pic.src = tg.initDataUnsafe.user.photo_url; //задаём src 
   // usercard.appendChild(pic); //добавляем элемент в карточку 
+</script>
+<script>
+  const qwe123 = document.querySelector("Ошибка╳");
+  qwe123.addEventListener("click", (e) => {
+    const { target } = e;
+    const wrap = target.GlButton;
+    wrap.remove();
+  })
 </script>
