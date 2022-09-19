@@ -355,11 +355,11 @@
     <div id="usercard"> <!--Карта профиля, человека, который к нам обратился-->
     </div>
 
-    <div class="opoveshenie1" hidden>
+    <div class="opoveshenie1"  onclick="this.style.display='none';">
       <input class="success" type="submit" value="Успех   ╳">
       <span><img class="iconkaGX" src = "galka.png" alt="galka" width="24" height="24"></span>
     </div>
-    <div class="opoveshenie1" hidden>
+    <div class="opoveshenie1"  onclick="this.style.display='none';">
       <input class="nosuccess" type="submit" value="Ошибка╳">
       <img class="iconkaGX" src = "znak.png" alt="znak" width="24" height="24">
     </div>
@@ -457,16 +457,4 @@ fetch("/api.v3.change-user-otpusk", {
     const wrap = target.GlButton;
     wrap.remove();
   })
-</script>
-
-<script>
-document.getElementsByClassName('GlButton').onclick = function() {
-      // document.getElementById('opoveshenie').hidden = false;
-      document.getElementsByClassName("opoveshenie1").hidden=false;
-    }
-document.getElementsByClassName('GlButton').onclick = function() {
-      // document.getElementById('opoveshenie').hidden = false;
-      document.getElementsByClassName("opoveshenie1").hidden=true;
-    }
-
 </script>
