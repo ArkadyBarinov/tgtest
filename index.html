@@ -25,6 +25,11 @@
       setThemeClass();
 
   </script>
+  <script>
+    function viewResult(){
+    document.getElementById("opoveshenie1").style.display = "flex";
+  };
+  </script>
       <style>
         body {
             font-family: sans-serif;
@@ -273,10 +278,10 @@
           left: 75px;
           top: 9px;
         }
-        .opoveshenie1 {
+        #opoveshenie1 {
           box-sizing: border-box;
           position: relative;
-          display: flex;
+          display: none;
           flex-direction: row;
           justify-content: center;
           align-items: center;
@@ -349,20 +354,20 @@
       <div id="some-id" style="position: relative;">
       </div>
       <div class="GlButton" >
-        <input class="forma" type="submit" value="Отправить форму">
+        <input class="forma" type="submit" value="Отправить форму" onmousedown="viewResult()">
       </div>
     </div>
     <div id="usercard"> <!--Карта профиля, человека, который к нам обратился-->
     </div>
 
-    <div class="opoveshenie1"  onclick="this.style.display='none';">
+    <div id="opoveshenie1" onclick="this.style.display='none';">
       <input class="success" type="submit" value="Успех   ╳">
       <span><img class="iconkaGX" src = "galka.png" alt="galka" width="24" height="24"></span>
     </div>
-    <div class="opoveshenie1"  onclick="this.style.display='none';">
+    <!-- <div id="opoveshenie1"  onclick="this.style.display='none';">
       <input class="nosuccess" type="submit" value="Ошибка╳">
       <img class="iconkaGX" src = "znak.png" alt="znak" width="24" height="24">
-    </div>
+    </div> -->
 
     <a class="link" href="https://sokolov.ru">Link</a> <!--Просто ссылка для проверки-->
     <button id="btn" class="button">Show/Hide Main Button</button> <!--Кнопка, чтобы скрыть / показать основную кнопку-->
