@@ -25,12 +25,14 @@
       setThemeClass();
 
   </script> -->
+  <!-- показываем кнопку успех -->
   <script>
     function viewResult(){
     document.getElementById("opoveshenie1").style.display = "flex";
   };
   </script>
-    <script>
+  <!-- показываем 2 этап  -->
+    <script> 
       function viewCalen(){
       document.getElementById("twoShag").style.display = "flex";
     };
@@ -359,6 +361,7 @@
             <div class="ViborOT">
                 <spam>Какой тип отпуска вы хотите взять?</spam>
             </div>
+            <!-- выбор типа отпуска -->
         <div class="dfdf">
 
           <div class="formRadio">
@@ -382,7 +385,7 @@
       <div>
         <spam id="twodate">Выберите 2 даты в календаре: дату начала и завершения отпуска</spam>
       </div>
-
+<!-- календарь -->
       <div class="input"><input id="datepicker" disabled>
         <span><img class="iconka" src = "calendar.svg" alt="SVG" width="24" height="24"></span>
       </div>
@@ -419,7 +422,7 @@
       <div id="some-id" style="position: relative;">
       </div>
       <div class="GlButton" >
-        <input class="forma" type="submit" value="Отправить форму" onmousedown="viewResult()" btn.addEventListener()>
+        <input class="forma" type="submit" value="Отправить форму" onmousedown="viewResult()">
       </div>
     </div>
     <div id="opoveshenie1" onclick="this.style.display='none';">
@@ -431,11 +434,11 @@
       <img class="iconkaGX" src = "znak.png" alt="znak" width="24" height="24">
     </div> -->
   </div>
-  <!-- <div id="usercard">
-  </div> -->
-    <!-- <a class="link" href="https://sokolov.ru">Link</a>
-    <button id="btn" class="button">Show/Hide Main Button</button>
-    <button id="btnED" class="button">Enable/Disable Main Button</button> -->
+  <div id="usercard"> <!--Карта профиля, человека, который к нам обратился-->
+  </div>
+    <a class="link" href="https://sokolov.ru">Link</a> <!--Просто ссылка для проверки-->
+    <button id="btn" class="button">Show/Hide Main Button</button> <!--Кнопка, чтобы скрыть / показать основную кнопку-->
+    <button id="btnED" class="button">Enable/Disable Main Button</button> <!--Кнопка, чтобы сделать кнопку активной/неактивной-->
 </section>
 
 <script>
@@ -453,6 +456,24 @@ fetch("/api.v3.change-user-otpusk", {
     console.log(json);
   })
 </script>
+<!-- /////////// -->
+  <script>
+
+    let userObj = {
+  id: "tg.initDataUnsafe.user.id",
+  name: "tg.initDataUnsafe.user.first_name",
+  fname: "${tg.initDataUnsafe.user.last_name}",
+  dataStart: "",
+  dataEnd: "",
+};
+
+let userStr = JSON.stringify(userObj);
+
+console.log(userStr);
+console.log(userObj);
+
+  </script>
+<!-- ///////////// -->
 
   <script>
     function toggleRadio(flag){
