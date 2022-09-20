@@ -30,6 +30,11 @@
     document.getElementById("opoveshenie1").style.display = "flex";
   };
   </script>
+    <script>
+      function viewCalen(){
+      document.getElementById("twoShag").style.display = "flex";
+    };
+    </script>
       <style>
         body {
             font-family: sans-serif;
@@ -289,6 +294,10 @@
           justify-content: center;
           align-items: center;
         }
+        #twoShag {
+          display: none;
+          flex-direction:column;
+        }
     </style>
 </head>
 <body>
@@ -302,23 +311,24 @@
 
           <div class="formRadio">
           <input class="put" type="radio" id="O1" onclick="toggleRadio(true)" name="vacation" value="O1">
-            <label class="labeLL" for="O1">Оплачиваемый</label>
+            <label class="labeLL" for="O1" onmousedown="viewCalen()">Оплачиваемый</label>
           </div>
 
           <div class="formRadio">
           <input class="put" type="radio" id="O2" onclick="toggleRadio(true)" name="vacation" value="O2">
-            <label  class="labeLL" for="O2">За свой счет</label>
+            <label  class="labeLL" for="O2" onmousedown="viewCalen()">За свой счет</label>
             </div>
 
             <div class="formRadio">
           <input class="put" type="radio" id="O3" onclick="toggleRadio(true)" name="vacation" value="O3">
-            <label  class="labeLL" for="O3">Другое</label>
+            <label  class="labeLL" for="O3" onmousedown="viewCalen()">Другое</label>
             </div>
           </div>
         
       </div>
+      <div id="twoShag">
       <div>
-        <spam class="twodate">Выберите 2 даты в календаре: дату начала и завершения отпуска</spam>
+        <spam id="twodate">Выберите 2 даты в календаре: дату начала и завершения отпуска</spam>
       </div>
 
       <div class="input"><input id="datepicker" disabled>
@@ -359,7 +369,7 @@
       <div class="GlButton" >
         <input class="forma" type="submit" value="Отправить форму" onmousedown="viewResult()">
       </div>
-
+    </div>
     <div id="opoveshenie1" onclick="this.style.display='none';">
       <input class="success" type="submit" value="Успех   ╳">
       <span><img class="iconkaGX" src = "galka.png" alt="galka" width="24" height="24"></span>
