@@ -181,13 +181,14 @@
           user-select: none;
         }
         .formRadio input[type=radio]:checked + label {
-          background: rgb(9, 187, 0);
+          background: #FFFFFF;
           font-weight: 900;
-          font-size: 20px;
-          color:#545
+          border: 2px solid #000000;
+border-radius: 4px;
         }
         .formRadio label:hover {
           color: #666;
+          background: #F2F2F2;
         }
         .formRadio input[type=radio]:disabled + label {
           background: #efefef;
@@ -219,12 +220,14 @@
         }
         /* стили при наведении курсора на радио */
         .put:not(:disabled):not(:checked)+label:hover::before {
-          border-color: #b3d7ff;
+
+          background: #F2F2F2;
+          border: 1px solid  #000000;
         }
         /* стили для активной радиокнопки (при нажатии на неё) */
         .put:not(:disabled):active+label::before {
-          background-color: #b3d7ff;
-          border-color: #b3d7ff;
+          background-color: #F2F2F2;
+          border-color: #F2F2F2;
         }
         /* стили для радиокнопки, находящейся в фокусе */
         .put:focus+label::before {
@@ -236,8 +239,8 @@
         }
         /* стили для радиокнопки, находящейся в состоянии checked */
         .put:checked+label::before {
-          border-color: #0b76ef;
-          background-color: #0b76ef;
+          border-color: #000000;
+          background-color: #000000;
           background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
         }
         /* стили для радиокнопки, находящейся в состоянии disabled */
