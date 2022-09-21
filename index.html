@@ -188,7 +188,7 @@
         .formRadio label {
           display: inline-block;
           cursor: pointer;
-          padding: 0px 15px;
+          /* padding: 0px 15px; */
           line-height: 34px;
           border: 1px solid #999;
           border-radius: 6px;
@@ -309,7 +309,7 @@
           justify-content: center;
           align-items: center;
         }
-        /* [type="radio"]:checked,
+        [type="radio"]:checked,
         [type="radio"]:not(:checked) {
             position: absolute;
             left: -9999px;
@@ -318,7 +318,7 @@
         [type="radio"]:not(:checked) + label
         {
             position: relative;
-            padding-left: 28px;
+            padding-left: 35px;
             cursor: pointer;
             line-height: 20px;
             display: inline-block;
@@ -328,8 +328,8 @@
         [type="radio"]:not(:checked) + label:before {
             content: '';
             position: absolute;
-            left: 0;
-            top: 0;
+            left: 5px;
+            top: 20px;
             width: 18px;
             height: 18px;
             border: 1px solid #ddd;
@@ -343,8 +343,8 @@
             height: 12px;
             background: #000000;
             position: absolute;
-            top: 4px;
-            left: 4px;
+            top: 24px;
+            left: 9px;
             border-radius: 100%;
             -webkit-transition: all 0.5s ease;
             transition: all 0.5s ease;
@@ -358,7 +358,10 @@
             opacity: 1;
             -webkit-transform: scale(1);
             transform: scale(1);
-        } */
+        }
+        .labeLL {
+          padding: 20px;
+        }
     </style>
 </head>
 <body>
@@ -417,7 +420,7 @@
                     months: true,
                     years: true,
                     minYear: 2020,
-                    maxYear: 2050
+                    maxYear: 2033
                 },
                 resetButton: true
             },
