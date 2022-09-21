@@ -309,11 +309,6 @@
           justify-content: center;
           align-items: center;
         }
-        [type="radio"]:checked,
-        [type="radio"]:not(:checked) {
-            position: absolute;
-            left: -9999px;
-        }
         [type="radio"]:checked + label,
         [type="radio"]:not(:checked) + label
         {
@@ -362,6 +357,10 @@
         .labeLL {
           padding: 20px;
         }
+        .podzag {
+          font-weight: 400;
+          font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -369,7 +368,10 @@
     <div>
       <div class="typeOT">
             <div class="ViborOT">
-                <spam>Какой тип отпуска вы хотите взять?</spam>
+                <spam>Заявление на отпуск</spam>
+                <div class="podzag">
+                    <p>Для оформления или переноса отпуска, заполните поля ниже.</p>
+              </div>
             </div>
             <!-- выбор типа отпуска -->
         <div class="dfdf">
@@ -437,7 +439,7 @@
       <div id="some-id" style="position: relative;">
       </div>
       <div class="GlButton" >
-        <input class="forma" type="submit" value="Отправить форму" onmousedown="viewResult()">
+        <input class="forma" type="submit" value="Сформировать заявление" onmousedown="viewResult()">
       </div>
     </div>
     <div id="opoveshenie1" onclick="this.style.display='none';">
@@ -448,7 +450,16 @@
       <input class="nosuccess" type="submit" value="Ошибка╳">
       <img class="iconkaGX" src = "znak.png" alt="znak" width="24" height="24">
     </div> -->
- 
+  </div>
+  <!--Карта профиля, человека, который к нам обратился-->
+  <div id="usercard">
+  </div>
+    <a class="link" href="https://sokolov.ru">Link</a>
+     <!--Просто ссылка для проверки-->
+    <button id="btn" class="button">Show/Hide Main Button</button>
+     <!--Кнопка, чтобы скрыть / показать основную кнопку-->
+    <button id="btnED" class="button">Enable/Disable Main Button</button>
+    <!--Кнопка, чтобы сделать кнопку активной/неактивной-->
 </section>
 
 <script>
