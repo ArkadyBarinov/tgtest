@@ -15,353 +15,10 @@
     <script src="https://unpkg.com/js-datepicker"></script>
     <script src="https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.0/dist/index.umd.min.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js?1"></script>
-    <script src="/app.js"></script>
+    <script src="app.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- <script>
-      function setThemeClass() {
-          document.documentElement.className = Telegram.WebApp.colorScheme;
-      }
-      Telegram.WebApp.onEvent('themeChanged', setThemeClass);
-      setThemeClass();
-
-  </script> -->
-  <!-- показываем кнопку успех -->
-  <script>
-    function viewResult(){
-    document.getElementById("opoveshenie1").style.display = "flex";
-  };
-  </script>
-  <!-- показываем 2 этап  -->
-    <script>
-      function viewCalen(){
-      document.getElementById("twoShag").style.display = "flex";
-    };
-    </script>
-      <style>
-        *,
-        body {
-          box-sizing: border-box;
-        }
-        section {
-          width: 100%;
-        }
-        body {
-            font-family: sans-serif;
-            /* background-color: var(--tg-theme-bg-color, #ffffff);
-            color:  #222222); */
-            font-size: 16px;
-            margin: 0;
-            padding: 0;
-            /* color-scheme: var(--tg-color-scheme); */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 18px;
-            background-color: #f3f3f3;
-        }
-      .button{
-         /* background: var(--tg-theme-button-color);
-         color: var(--tg-theme-button-text-color); */
-         border: none;
-         font-size: 18px;
-      }
-      .button:not(:last-child){
-         margin-bottom: 20px
-      }
-
-      #usercard{
-         text-align: center;
-      }
-        button {
-            display: block;
-            width: 100%;
-            font-size: 14px;
-            margin: 15px 0;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            background-color:#50a8eb;
-            color: #ffffff;
-            cursor: pointer;
-        }
-        button[disabled] {
-            opacity: 0.6;
-            cursor: auto;
-            pointer-events: none;
-        }
-        .forma {
-          display: block;
-            width: 100%;
-            font-size: 14px;
-            margin: 15px 0;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            color: #ffffff;
-            cursor: pointer;
-        }
-        button.close_btn {
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border-radius: 0;
-            margin: 0;
-            padding: 16px 20px;
-            text-transform: uppercase;
-        }
-        section {
-            padding: 15px 15px 65px;
-            text-align: center;
-        }
-        p {
-            margin: 40px 0 15px;
-        }
-        .qs-datepicker-container {
-          display:block;
-          margin-top: 200px;
-        }
-        .forma {
-          background: #000000;
-          border-radius: 8px;
-          padding: 16px;
-          gap: 12px;
-          width: 364px;
-          height: 56px;
-        }
-        .GlButton {
-          box-sizing: border-box;
-          position: relative;
-          display: flex;
-          flex-direction: row;
-          justify-content: center;
-          align-items: center;
-        }
-        .forma:hover {
-          background: #404040;
-        }
-        .forma:focus {
-        outline: none;
-        }
-        .forma:active {
-        background: #595959;
-        }
-        #datepicker {
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 12px 8px;
-        gap: 8px;
-        width: 250px;
-        height: 48px;
-        border: 2px solid #B3B3B3;
-        border-radius: 8px;
-        flex: none;
-        order: 1;
-        align-self: stretch;
-        flex-grow: 0;
-        }
-        .typeOT {
-          padding: 30px;
-        }
-        .input {
-          padding: 30px;
-          position: relative;
-          display:inline-block;
-          margin-top: 20px;
-        }
-        .iconka {
-          position:absolute;
-          left: 250px;
-          top: 42px;
-        }
-         .ViborOT {
-          font-weight: 700;
-          margin-bottom: 20px;
-        }
-        .formRadio {
-          margin-right: 10px;
-          padding: 10px;
-        }
-        .formRadio label {
-          display: inline-block;
-          cursor: pointer;
-          /* padding: 0px 15px; */
-          line-height: 34px;
-          border: 1px solid #999;
-          border-radius: 6px;
-          user-select: none;
-          background-color: #ffffff;
-        }
-
-        .formRadio input[type=radio]:checked + label {
-          background: #FFFFFF;
-          font-weight: 900;
-          border: 2px solid #000000;
-          border-radius: 4px;
-        }
-        .formRadio label:hover {
-          color: #666;
-          background: #F2F2F2;
-        }
-        .formRadio input[type=radio]:disabled + label {
-          background: #efefef;
-          color: #666;
-        }
-        .put {
-          position: absolute;
-          z-index: -1;
-          opacity: 0;
-        }
-        .put+label {
-          display: inline-flex;
-          align-items: center;
-          user-select: none;
-        }
-        .put+label::before {
-          content: '';
-          display: inline-block;
-          width: 1em;
-          height: 1em;
-          flex-shrink: 0;
-          flex-grow: 0;
-          border: 1px solid #adb5bd;
-          border-radius: 50%;
-          margin-right: 0.5em;
-          background-repeat: no-repeat;
-          background-position: center center;
-          background-size: 50% 50%;
-        }
-        /* стили при наведении курсора на радио */
-        .put:not(:disabled):not(:checked)+label:hover::before {
-
-          background: #F2F2F2;
-          border: 1px solid  #000000;
-        }
-        /* стили для активной радиокнопки (при нажатии на неё) */
-        .put:not(:disabled):active+label::before {
-          background-color: #F2F2F2;
-          border-color: #F2F2F2;
-        }
-        /* стили для радиокнопки, находящейся в фокусе */
-        .put:focus+label::before {
-          box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-        }
-        /* стили для радиокнопки, находящейся в фокусе и не находящейся в состоянии checked */
-        .put:focus:not(:checked)+label::before {
-          border-color: #80bdff;
-        }
-        /* стили для радиокнопки, находящейся в состоянии checked */
-        .put:checked+label::before {
-          border-color: #000000;
-          background-color: #000000;
-          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
-        }
-        /* стили для радиокнопки, находящейся в состоянии disabled */
-        .put:disabled+label::before {
-          background-color: #e9ecef;
-        }
-        .formRadio {
-          margin-bottom: 0.4em;
-          padding: 10px;
-        }
-        .dfdf {
-          text-align: start;
-        }
-        #twoShag {
-          display: none;
-          flex-direction:column;
-        }
-        .success {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          padding: 8px;
-          width: 224px;
-          height: 40px;
-          background: #E2F5D6;
-          border-radius: 8px;
-        }
-        .nosuccess {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          padding: 8px;
-          width: 224px;
-          height: 40px;
-          background: #F9D6D2;
-          border-radius: 8px;
-        }
-        .iconkaGX {
-          position:absolute;
-          left: 75px;
-          top: 9px;
-        }
-        #opoveshenie1 {
-          box-sizing: border-box;
-          position: relative;
-          display: none;
-          flex-direction: row;
-          justify-content: center;
-          align-items: center;
-        }
-        [type="radio"]:checked + label,
-        [type="radio"]:not(:checked) + label
-        {
-            position: relative;
-            padding-left: 35px;
-            cursor: pointer;
-            line-height: 20px;
-            display: inline-block;
-            color: #666;
-        }
-        [type="radio"]:checked + label:before,
-        [type="radio"]:not(:checked) + label:before {
-            content: '';
-            position: absolute;
-            left: 5px;
-            top: 20px;
-            width: 18px;
-            height: 18px;
-            border: 1px solid #ddd;
-            border-radius: 100%;
-            background: #fff;
-        }
-        [type="radio"]:checked + label:after,
-        [type="radio"]:not(:checked) + label:after {
-            content: '';
-            width: 12px;
-            height: 12px;
-            background: #000000;
-            position: absolute;
-            top: 24px;
-            left: 9px;
-            border-radius: 100%;
-            -webkit-transition: all 0.5s ease;
-            transition: all 0.5s ease;
-        }
-        [type="radio"]:not(:checked) + label:after {
-            opacity: 0;
-            -webkit-transform: scale(0);
-            transform: scale(0);
-        }
-        [type="radio"]:checked + label:after {
-            opacity: 1;
-            -webkit-transform: scale(1);
-            transform: scale(1);
-        }
-        .labeLL {
-          padding: 20px;
-        }
-        .podzag {
-          font-weight: 400;
-          font-size: 16px;
-        }
-    </style>
+    <link rel="stylesheet" href="index.css">
+    <script src="mel.js"></script>
 </head>
 <body>
   <section>
@@ -373,32 +30,32 @@
                     <p>Для оформления или переноса отпуска, заполните поля ниже.</p>
               </div>
             </div>
-            <!-- выбор типа отпуска -->
-        <div class="dfdf">
-
-          <div class="formRadio">
-          <input class="put" type="radio" id="O1" onclick="toggleRadio(true)" name="vacation" value="O1">
-            <label class="labeLL" for="O1" onmousedown="viewCalen()">Оплачиваемый</label>
-          </div>
-
-          <div class="formRadio">
-          <input class="put" type="radio" id="O2" onclick="toggleRadio(true)" name="vacation" value="O2">
-            <label  class="labeLL" for="O2" onmousedown="viewCalen()">За свой счет</label>
+            <div>
+            <form>
+              <p><strong>Тип отпуска</strong></p>
+              <div class="centr">
+              <p><select  id="tyte" name="typee">
+               <option value="s1">Ежегодный оплачиваемый отпуск</option>
+               <option value="s2">Отпуск за свой счёт</option>
+               <option value="s3">Другое</option>
+              </select> 
+             </form>
             </div>
-
-            <div class="formRadio">
-          <input class="put" type="radio" id="O3" onclick="toggleRadio(true)" name="vacation" value="O3">
-            <label  class="labeLL" for="O3" onmousedown="viewCalen()">Другое</label>
             </div>
-          </div>
-
+            <div>
+              <p>Количество дней</p>
+              <div class="centr">
+              <input type="number" id="tentacles" name="tentacles" placeholder="Введите количество дней"
+       min="1">
+      </div>
+            </div>
       </div>
       <div id="twoShag">
       <div>
-        <spam id="twodate">Выберите 2 даты в календаре: дату начала и завершения отпуска</spam>
+        <spam id="twodate">Выберите дату начала отпуска</spam>
       </div>
 <!-- календарь -->
-      <div class="input"><input id="datepicker" disabled>
+      <div class="input"><input id="datepicker">
         <span><img class="iconka" src = "calendar.svg" alt="SVG" width="24" height="24"></span>
       </div>
       <script>
@@ -410,7 +67,7 @@
             zIndex: 10,
             lang: "ru-RU",
             format: "DD.MM.YYYY",
-            calendars: 2,
+            calendars: 1,
             autoApply: false,
             locale: {
                 cancel: "Отмена",
@@ -426,12 +83,8 @@
                 },
                 resetButton: true
             },
-            RangePlugin: {
-                delimiter: " & "
-            },
             plugins: [
                 "AmpPlugin",
-                "RangePlugin"
             ]
         })
             </script>
@@ -461,111 +114,3 @@
     <!-- <button id="btnED" class="button">Enable/Disable Main Button</button> -->
     <!--Кнопка, чтобы сделать кнопку активной/неактивной-->
 </section>
-
-<script>
-const logichata = {
-  id:1,
-  type:2,
-  dates:"232432"
-};
-fetch("/api.v3.change-user-otpusk", {
-  method:"PUT",
-  body: JSON.parse({ data })
-})
-  .then(res => res.json())
-  .then(json => {
-    console.log(json);
-  })
-</script>
-<!-- /////////// -->
-  <script>
-
-    let userObj = {
-  id: "tg.initDataUnsafe.user.id",
-  name: "tg.initDataUnsafe.user.first_name",
-  fname: "${tg.initDataUnsafe.user.last_name}",
-  dataStart: "",
-  dataEnd: "",
-};
-
-let userStr = JSON.stringify(userObj);
-
-console.log(userStr);
-console.log(userObj);
-
-  </script>
-<!-- ///////////// -->
-
-  <script>
-    function toggleRadio(flag){
-      if(!flag) {
-        document.getElementById('datepicker').setAttribute("disabled", "true");
-      } else {
-        document.getElementById('datepicker').removeAttribute("disabled");
-        document.getElementById('datepicker').focus();
-      }
-
-    }
-  </script>
-
-<script>
-  let tg = window.Telegram.WebApp; //получаем объект webapp телеграма
-
-  tg.expand(); //расширяем на все окно
-
-  tg.MainButton.text = "Подтвердить"; //изменяем текст кнопки
-  tg.MainButton.setText("Отменить"); //изменяем текст кнопки иначе
-  tg.MainButton.textColor = "#F55353"; //изменяем цвет текста кнопки
-  tg.MainButton.color = "#143F6B"; //изменяем цвет бэкграунда кнопки
-  tg.MainButton.setParams({"color": "#143F6B"}); //так изменяются все параметры
-
-  let btn = document.getElementById("btn"); //получаем кнопку скрыть/показать
-
-  btn.addEventListener('click', function(){ //вешаем событие на нажатие html-кнопки
-     if (tg.MainButton.isVisible){ //если кнопка показана
-        tg.MainButton.hide() //скрываем кнопку
-     }
-     else{ //иначе
-        tg.MainButton.show() //показываем
-     }
-  });
-
-  let btnED = document.getElementById("btnED"); //получаем кнопку активировать/деактивировать
-  btnED.addEventListener('click', function(){ //вешаем событие на нажатие html-кнопки
-     if (tg.MainButton.isActive){ //если кнопка показана
-        tg.MainButton.setParams({"color": "#E0FFFF"}); //меняем цвет
-        tg.MainButton.disable() //скрываем кнопку
-     }
-     else{ //иначе
-        tg.MainButton.setParams({"color": "#143F6B"}); //меняем цвет
-        tg.MainButton.enable() //показываем
-     }
-  });
-
-  Telegram.WebApp.onEvent('mainButtonClicked', function(){
-     tg.sendData("some string that we need to send");
-     //при клике на основную кнопку отправляем данные в строковом виде
-  });
-  let usercard = document.getElementById("usercard"); //получаем блок usercard
-  let profName = document.createElement('p'); //создаем параграф
-  profName.innerText = `${tg.initDataUnsafe.user.first_name}
-  ${tg.initDataUnsafe.user.last_name}
-  ${tg.initDataUnsafe.user.username} (${tg.initDataUnsafe.user.language_code})`;
-  //выдем имя, "фамилию", через тире username и код языка
-  usercard.appendChild(profName); //добавляем
-  let userid = document.createElement('p'); //создаем еще параграф
-  userid.innerText = `${tg.initDataUnsafe.user.id}`; //показываем user_id
-  usercard.appendChild(userid); //добавляем
-  //работает только в attachment menu
-  // let pic = document.createElement('img'); //создаем img
-  // pic.src = tg.initDataUnsafe.user.photo_url; //задаём src
-  // usercard.appendChild(pic); //добавляем элемент в карточку
-</script>
-<script>
-  const qwe123 = document.querySelector("Ошибка╳");
-  qwe123.addEventListener("click", (e) => {
-    const { target } = e;
-    const wrap = target.GlButton;
-    wrap.remove();
-  })
-</script>

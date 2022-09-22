@@ -1,3 +1,356 @@
-h1 {
-    color: red;
-}
+*,
+        body {
+          box-sizing: border-box;
+        }
+        section {
+          width: 100%;
+        }
+        body {
+            font-family: sans-serif;
+            font-size: 16px;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 18px;
+            background-color: #f3f3f3;
+        }
+      .button{
+         border: none;
+         font-size: 18px;
+      }
+      .button:not(:last-child){
+         margin-bottom: 20px
+      }
+
+      #usercard{
+         text-align: center;
+      }
+        button {
+            display: block;
+            width: 100%;
+            font-size: 14px;
+            margin: 15px 0;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color:#50a8eb;
+            color: #ffffff;
+            cursor: pointer;
+        }
+        button[disabled] {
+            opacity: 0.6;
+            cursor: auto;
+            pointer-events: none;
+        }
+        .forma {
+          display: block;
+            width: 100%;
+            font-size: 14px;
+            margin: 15px 0;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            color: #ffffff;
+            cursor: pointer;
+        }
+        button.close_btn {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 0;
+            margin: 0;
+            padding: 16px 20px;
+            text-transform: uppercase;
+        }
+        section {
+            padding: 15px 15px 65px;
+            text-align: center;
+        }
+        p {
+            margin: 40px 0 15px;
+        }
+        .qs-datepicker-container {
+          display:block;
+          margin-top: 200px;
+        }
+        .forma {
+          background: #000000;
+          border-radius: 8px;
+          padding: 16px;
+          gap: 12px;
+          width: 364px;
+          height: 56px;
+        }
+        .GlButton {
+          box-sizing: border-box;
+          position: relative;
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
+        }
+        .forma:hover {
+          background: #404040;
+        }
+        .forma:focus {
+        outline: none;
+        }
+        .forma:active {
+        background: #595959;
+        }
+        #datepicker {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 12px 8px;
+        gap: 8px;
+        width: 250px;
+        height: 48px;
+        border: 2px solid #B3B3B3;
+        border-radius: 8px;
+        flex: none;
+        order: 1;
+        align-self: stretch;
+        flex-grow: 0;
+        }
+        .typeOT {
+          padding: 30px;
+        }
+        .input {
+          padding: 30px;
+          position: relative;
+          display:inline-block;
+          margin-top: 20px;
+        }
+        .iconka {
+          position:absolute;
+          left: 250px;
+          top: 42px;
+        }
+         .ViborOT {
+          font-weight: 700;
+          margin-bottom: 20px;
+        }
+        .formRadio {
+          margin-right: 10px;
+          padding: 10px;
+        }
+        .formRadio label {
+          display: inline-block;
+          cursor: pointer;
+          /* padding: 0px 15px; */
+          line-height: 34px;
+          border: 1px solid #999;
+          border-radius: 6px;
+          user-select: none;
+          background-color: #ffffff;
+        }
+
+        .formRadio input[type=radio]:checked + label {
+          background: #FFFFFF;
+          font-weight: 900;
+          border: 2px solid #000000;
+          border-radius: 4px;
+        }
+        .formRadio label:hover {
+          color: #666;
+          background: #F2F2F2;
+        }
+        .formRadio input[type=radio]:disabled + label {
+          background: #efefef;
+          color: #666;
+        }
+        .put {
+          position: absolute;
+          z-index: -1;
+          opacity: 0;
+        }
+        .put+label {
+          display: inline-flex;
+          align-items: center;
+          user-select: none;
+        }
+        .put+label::before {
+          content: '';
+          display: inline-block;
+          width: 1em;
+          height: 1em;
+          flex-shrink: 0;
+          flex-grow: 0;
+          border: 1px solid #adb5bd;
+          border-radius: 50%;
+          margin-right: 0.5em;
+          background-repeat: no-repeat;
+          background-position: center center;
+          background-size: 50% 50%;
+        }
+        /* стили при наведении курсора на радио */
+        .put:not(:disabled):not(:checked)+label:hover::before {
+
+          background: #F2F2F2;
+          border: 1px solid  #000000;
+        }
+        /* стили для активной радиокнопки (при нажатии на неё) */
+        .put:not(:disabled):active+label::before {
+          background-color: #F2F2F2;
+          border-color: #F2F2F2;
+        }
+        /* стили для радиокнопки, находящейся в фокусе */
+        .put:focus+label::before {
+          box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        /* стили для радиокнопки, находящейся в фокусе и не находящейся в состоянии checked */
+        .put:focus:not(:checked)+label::before {
+          border-color: #80bdff;
+        }
+        /* стили для радиокнопки, находящейся в состоянии checked */
+        .put:checked+label::before {
+          border-color: #000000;
+          background-color: #000000;
+          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+        }
+        /* стили для радиокнопки, находящейся в состоянии disabled */
+        .put:disabled+label::before {
+          background-color: #e9ecef;
+        }
+        .formRadio {
+          margin-bottom: 0.4em;
+          padding: 10px;
+        }
+        .dfdf {
+          text-align: start;
+        }
+        #twoShag {
+          flex-direction:column;
+        }
+        .success {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          padding: 8px;
+          width: 224px;
+          height: 40px;
+          background: #E2F5D6;
+          border-radius: 8px;
+        }
+        .nosuccess {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          padding: 8px;
+          width: 224px;
+          height: 40px;
+          background: #F9D6D2;
+          border-radius: 8px;
+        }
+        .iconkaGX {
+          position:absolute;
+          left: 75px;
+          top: 9px;
+        }
+        #opoveshenie1 {
+          box-sizing: border-box;
+          position: relative;
+          display: none;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
+        }
+        [type="radio"]:checked + label,
+        [type="radio"]:not(:checked) + label
+        {
+            position: relative;
+            padding-left: 35px;
+            cursor: pointer;
+            line-height: 20px;
+            display: inline-block;
+            color: #666;
+        }
+        [type="radio"]:checked + label:before,
+        [type="radio"]:not(:checked) + label:before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 20px;
+            width: 18px;
+            height: 18px;
+            border: 1px solid #ddd;
+            border-radius: 100%;
+            background: #fff;
+        }
+        [type="radio"]:checked + label:after,
+        [type="radio"]:not(:checked) + label:after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: #000000;
+            position: absolute;
+            top: 24px;
+            left: 9px;
+            border-radius: 100%;
+            -webkit-transition: all 0.5s ease;
+            transition: all 0.5s ease;
+        }
+        [type="radio"]:not(:checked) + label:after {
+            opacity: 0;
+            -webkit-transform: scale(0);
+            transform: scale(0);
+        }
+        [type="radio"]:checked + label:after {
+            opacity: 1;
+            -webkit-transform: scale(1);
+            transform: scale(1);
+        }
+        .labeLL {
+          padding: 20px;
+        }
+        .podzag {
+          font-weight: 400;
+          font-size: 16px;
+        }
+        #tentacles {
+          box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 12px 8px;
+        gap: 8px;
+        width: 250px;
+        height: 48px;
+        border: 2px solid #B3B3B3;
+        border-radius: 8px;
+        flex: none;
+        order: 1;
+        align-self: stretch;
+        flex-grow: 0;
+        }
+        #tyte {
+          box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 12px 8px;
+        gap: 8px;
+        width: 250px;
+        height: 48px;
+        border: 2px solid #B3B3B3;
+        border-radius: 8px;
+        flex: none;
+        order: 1;
+        align-self: stretch;
+        flex-grow: 0;
+        }
+        .centr {
+          display: flex;
+          justify-content:space-around;
+          align-items:center
+        }
