@@ -94,9 +94,9 @@
             <div class="menu">
               <button class="menu-close">X</button>
               <ul>
-                <li><input type="radiobutton">123</li>
-                <li><input type="radiobutton">456</li>
-                <li><input type="radiobutton">789</li>
+                <li><input class="check" type="radiobutton">123</li>
+                <li><input class="check" type="radiobutton">456</li>
+                <li><input class="check" type="radiobutton">789</li>
               </ul>
             </div>
 
@@ -106,6 +106,13 @@
 
               menu.classList.add("opened");
               menu.classList.remove("opened");
+
+              const menuEls = document.querySelectorAll(".check");
+              menuEls.forEach(el => {
+                el.addEventListener("click", (e) => {
+                  opener.value = el.value
+                })
+              })
             </script>
 
       <div id="some-id" style="position: relative;">
