@@ -89,6 +89,25 @@
         })
             </script>
 
+            <input class="menu-opener" type="text">
+
+            <div class="menu">
+              <button class="menu-close">X</button>
+              <ul>
+                <li><input type="radiobutton">123</li>
+                <li><input type="radiobutton">456</li>
+                <li><input type="radiobutton">789</li>
+              </ul>
+            </div>
+
+            <script>
+              const opener = document.querySelector(".menu-opener");
+              const menu = document.querySelector(".menu");
+
+              menu.classList.add("opened");
+              menu.classList.remove("opened");
+            </script>
+
       <div id="some-id" style="position: relative;">
       </div>
       <div class="GlButton" >
