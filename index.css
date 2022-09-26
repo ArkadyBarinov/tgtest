@@ -398,3 +398,6 @@
             display: flex;
             justify-content:space-between;
         }
+        #closewindow {
+            display: none;
+        }

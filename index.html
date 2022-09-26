@@ -135,7 +135,7 @@
 <section>
 <div id="proverka-dann">
   <div class="sformirovano">
-    <spam>Заявление сформировано</spam>
+    <spam><strong>Заявление сформировано</strong></spam>
     <div class="vedd-dann">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <mask id="mask0_91_12256" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
@@ -196,7 +196,7 @@
       </div>
     </div>
   <div class="okonchatpodtvergdenie" >
-    <input class="forma" type="submit" value="Отправить заявление на подпись" onmousedown="viewshag2()">
+    <input class="forma" type="submit" value="Отправить заявление на подпись" onmousedown="viewshag3()">
   </div>
 </div>
   <!--Карта профиля, человека, который к нам обратился-->
@@ -208,9 +208,20 @@
     <!-- <button id="btnED" class="button">Enable/Disable Main Button</button> -->
     <!--Кнопка, чтобы сделать кнопку активной/неактивной-->
 </section>
+<section>
+  <div id="closewindow">
+    <p>Спасибо что выбрали нас</p>
+  </div>
+</section>
 <script>
   function viewshag2(){
   document.getElementById("podachazaevleniy").style.display = "none";
   document.getElementById("proverka-dann").style.display = "flex";
+};
+</script>
+<script>
+  function viewshag3(){
+  document.getElementById("proverka-dann").style.display = "none";
+  document.getElementById("closewindow").style.display = "flex";
 };
 </script>
