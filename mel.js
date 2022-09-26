@@ -1,4 +1,3 @@
-tg.expand(); //расширяем на все окно
 const logichata = {
   id:1,
   type:2,
