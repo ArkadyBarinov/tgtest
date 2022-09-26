@@ -31,19 +31,44 @@
                     <p>Для оформления или переноса отпуска, заполните поля ниже.</p>
               </div>
             </div>
+            <p>Тип отпуска</p>
             <div>
-            <form>
-              <p>Тип отпуска</p>
-              <div>
-              <p><select  id="tyte" name="typee">
-               <option value="s1">Ежегодный оплачиваемый отпуск</option>
-               <option value="s2">Отпуск за свой счёт</option>
-               <option value="s3">Другое</option>
-              </select> 
-             </form>
+              <input class="menu-opened" type="text" value="другок">
+
+              <div id="menu">
+                <button class="menu-close">X</button>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g opacity="0.6">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.41 8.58002L12 13.17L16.59 8.58002L18 10L12 16L6 10L7.41 8.58002Z" fill="black"/>
+                  </g>
+                  </svg>
+                  
+                <ul>
+                  <li><input class="check" type="radiobutton">Ежегодный оплачиваемый отпуск</li>
+                  <li><input class="check" type="radiobutton">Отпуск за свой счёт</li>
+                  <li><input class="check" type="radiobutton">Другое</li>
+                </ul>
+                
+              </div>
+  
+              <script>
+                const opener = document.querySelector("menu-opened");
+                const menu = document.querySelector("menu");
+  
+                menu.classList.add("opened");
+                menu.classList.remove("opened");
+  
+                const menuEls = document.querySelectorAll("check");
+                menuEls.forEach(el => {
+                  el.addEventListener("click", (e) => {
+                    opener.value = el.value
+                  })
+                })
+              </script>
+  
             </div>
             </div>
-            <div>
+            <div class="vvodkolvoday">
               <p>Количество дней</p>
               <div>
               <input type="number" id="tentacles" name="tentacles" placeholder="Введите количество дней"
@@ -88,32 +113,6 @@
                 "AmpPlugin",
             ]
         })
-            </script>
-
-            <input class="menu-opened" type="text" value="123">
-
-            <div id="menu">
-              <button class="menu-close">X</button>
-              <ul>
-                <li><input class="check" type="radiobutton">Ежегодный оплачиваемый отпуск</li>
-                <li><input class="check" type="radiobutton">Отпуск за свой счёт</li>
-                <li><input class="check" type="radiobutton">Другое</li>
-              </ul>
-            </div>
-
-            <script>
-              const opener = document.querySelector("menu-opened");
-              const menu = document.querySelector("menu");
-
-              menu.classList.add("opened");
-              menu.classList.remove("opened");
-
-              const menuEls = document.querySelectorAll("check");
-              menuEls.forEach(el => {
-                el.addEventListener("click", (e) => {
-                  opener.value = el.value
-                })
-              })
             </script>
 
       <div id="some-id" style="position: relative;">
@@ -170,7 +169,7 @@
               <div class="material">123</div>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g opacity="0.6">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M9.625 15.7351L10.597 17.4831L16.279 11.8011L14.919 10.4411L9.625 15.7351ZM8.265 14.3751L13.56 9.08008L12.2 7.72008L6.518 13.4021L8.266 14.3741L8.265 14.3751ZM17.639 10.4411L19.679 8.40108L15.599 4.32108L13.559 6.36108L15.599 8.40108L17.639 10.4411ZM9.139 18.6681L7.78 16.2201L5.333 14.8601L4.381 19.6201L9.141 18.6681H9.139ZM14.889 2.31208C15.281 1.92008 15.909 1.91208 16.301 2.30308L21.697 7.70008C22.084 8.08808 22.084 8.71708 21.687 9.11308L10.16 20.6401L2 22.0001L3.36 13.8401L14.888 2.31308L14.889 2.31208Z" fill="black"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M9.625 15.7351L10.597 17.4831L16.279 11.8011L14.919 10.4411L9.625 15.7351ZM8.265 14.3751L13.56 9.08008L12.2 7.72008L6.518 13.4021L8.266 14.3741L8.265 14.3751ZM17.639 10.4411L19.679 8.40108L15.599 4.32108L13.559 6.36108L15.599 8.40108L17.639 10.4411ZM9.139 18.6681L7.78 16.2201L5.333 14.8601L4.381 19.6201L9.141 18.6681H9.139ZM14.889 2.31208C15.281 1.92008 15.909 1.91208 16.301 2.30308L21.697 7.70008C22.084 8.08808 22.084 8.71708 21.687 9.11308L10.16 20.6401L2 22.0001L3.36 13.8401L14.888 2.31308L14.889 2.31208Z" fill="black" onclick="datepicker"/>
                 </g>
                 </svg>
               </div>
@@ -225,7 +224,7 @@
 </script>
 <script>
   function viewmenu3(){
-  document.getElementById("menu").style.display = "flex";
+  document.onclick("menu").style.display = "flex";
 };
 </script>
 <script>

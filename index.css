@@ -67,14 +67,13 @@
             text-transform: uppercase;
         }
         section {
-            padding: 15px 15px;
             text-align: center;
         }
         p {
         }
         .qs-datepicker-container {
           display:block;
-          margin-top: 200px;
+
         }
         .forma {
           background: #000000;
@@ -118,23 +117,20 @@
         align-self: stretch;
         flex-grow: 0;
         }
-        .typeOT {
-          padding: 30px;
-        }
         .input {
-          padding-left: 30px;
           position: relative;
           display:inline-block;
           margin-top: 20px;
         }
         .iconka {
           position:absolute;
-          left: 343px;
+          left: 314px;
           top: 12px;
         }
          .ViborOT {
           font-weight: 700;
-          margin-bottom: 20px;
+          margin-bottom: 8px;
+          margin-top: 16px;
         }
         .formRadio {
           margin-right: 10px;
@@ -224,11 +220,6 @@
         }
         .dfdf {
           text-align: start;
-        }
-        .iconkaGX {
-          position:absolute;
-          left: 75px;
-          top: 9px;
         }
         #opoveshenie1 {
           box-sizing: border-box;
@@ -334,6 +325,8 @@
             justify-content: center;
             align-items: flex-start;
             text-align: start;
+            margin-left: 16px;
+            margin-right: 16px;
         }
         #proverka-dann {
             display: none;
@@ -342,6 +335,8 @@
             justify-content: center;
             align-items: flex-start;
             text-align: start;
+            margin-left: 16px;
+            margin-right: 16px;
         }
         .svodka {
             width: 100%;
@@ -361,9 +356,11 @@
             padding: 8px;
             background: #D4EFF7;
             border-radius: 8px;
+            margin-top: 8px;
         }
         .shapka {
             font-weight: 600;
+            margin-top: 8px;
         }
         .material {
             font-weight: 400;
@@ -375,9 +372,8 @@
         #closewindow {
             display: none;
         }
-        .fortodate {
-            padding-left: 30px;
+        .sformirovano {
+            margin-bottom: 8px;
+            margin-top: 16px;
         }
-        .menu-opened {
-            margin-left: 30px;
-        }
+    
