@@ -51,10 +51,10 @@
       </div>
             </div>
       </div>
-      <div id="twoShag">
       <div>
-        <p>Дата отпуска</p>
-      </div>
+        <div class="fortodate">
+          <p>Дата отпуска</p>
+        </div>
 <!-- календарь -->
       <div class="input"><input id="datepicker" placeholder="Выберите дату начала отпуска">
         <span><img class="iconka" src = "calendar.svg" alt="SVG" width="24" height="24"></span>
@@ -92,12 +92,12 @@
 
             <input class="menu-opened" type="text" value="123">
 
-            <div class="menu">
+            <div id="menu">
               <button class="menu-close">X</button>
               <ul>
-                <li><input class="check" type="radiobutton">123</li>
-                <li><input class="check" type="radiobutton">456</li>
-                <li><input class="check" type="radiobutton">789</li>
+                <li><input class="check" type="radiobutton">Ежегодный оплачиваемый отпуск</li>
+                <li><input class="check" type="radiobutton">Отпуск за свой счёт</li>
+                <li><input class="check" type="radiobutton">Другое</li>
               </ul>
             </div>
 
@@ -122,14 +122,6 @@
         <input class="forma" type="submit" value="Сформировать заявление" onmousedown="viewshag2()">
       </div>
     </div>
-    <div id="opoveshenie1" onclick="this.style.display='none';">
-      <input class="success" type="submit" value="Успех   ╳">
-      <span><img class="iconkaGX" src = "galka.png" alt="galka" width="24" height="24"></span>
-    </div>
-    <!-- <div id="opoveshenie1"  onclick="this.style.display='none';">
-      <input class="nosuccess" type="submit" value="Ошибка╳">
-      <img class="iconkaGX" src = "znak.png" alt="znak" width="24" height="24">
-    </div> -->
 </div>
 </section>
 <section>
@@ -223,5 +215,21 @@
   function viewshag3(){
   document.getElementById("proverka-dann").style.display = "none";
   document.getElementById("closewindow").style.display = "flex";
+};
+</script>
+<script>
+  function viewmenu3(){
+  document.getElementById("proverka-dann").style.display = "none";
+  document.getElementById("closewindow").style.display = "flex";
+};
+</script>
+<script>
+  function viewmenu3(){
+  document.getElementById("menu").style.display = "flex";
+};
+</script>
+<script>
+  function viewmenu3(){
+  document.getElementById("menu").style.display = "none";
 };
 </script>
