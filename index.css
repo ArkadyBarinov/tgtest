@@ -358,3 +358,43 @@
         .menu {
             display: none;
         }
+        #podachazaevleniy {
+            display: flex;
+        }
+        #proverka-dann {
+            display: none;
+            box-sizing: border-box;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            text-align: start;
+        }
+        .svodka {
+            width: 100%;
+            font-family: 'Montserrat';
+            font-style: normal;
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: start;
+        }
+        .vedd-dann {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 8px;
+            background: #D4EFF7;
+            border-radius: 8px;
+        }
+        .shapka {
+            font-weight: 600;
+        }
+        .material {
+            font-weight: 400;
+        }
+        .karandashik {
+            display: flex;
+            justify-content:space-between;
+        }

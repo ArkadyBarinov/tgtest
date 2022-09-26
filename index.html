@@ -22,6 +22,7 @@
 </head>
 <body>
   <section>
+<div id="podachazaevleniy"> 
     <div>
       <div class="typeOT">
             <div class="ViborOT">
@@ -73,7 +74,7 @@
                 cancel: "Отмена",
                 apply: "Подтвердить"
             },
-            header: "Выбирайте дни в любом порядке",
+            header: "Выберите дату начала отпуска",
             AmpPlugin: {
                 dropdown: {
                     months: true,
@@ -89,7 +90,7 @@
         })
             </script>
 
-            <input class="menu-opener" type="text">
+            <input class="menu-opened" type="text" value="123">
 
             <div class="menu">
               <button class="menu-close">X</button>
@@ -101,13 +102,13 @@
             </div>
 
             <script>
-              const opener = document.querySelector(".menu-opener");
-              const menu = document.querySelector(".menu");
+              const opener = document.querySelector("menu-opened");
+              const menu = document.querySelector("menu");
 
               menu.classList.add("opened");
               menu.classList.remove("opened");
 
-              const menuEls = document.querySelectorAll(".check");
+              const menuEls = document.querySelectorAll("check");
               menuEls.forEach(el => {
                 el.addEventListener("click", (e) => {
                   opener.value = el.value
@@ -118,7 +119,7 @@
       <div id="some-id" style="position: relative;">
       </div>
       <div class="GlButton" >
-        <input class="forma" type="submit" value="Сформировать заявление" onmousedown="viewResult()">
+        <input class="forma" type="submit" value="Сформировать заявление" onmousedown="viewshag2()">
       </div>
     </div>
     <div id="opoveshenie1" onclick="this.style.display='none';">
@@ -129,10 +130,77 @@
       <input class="nosuccess" type="submit" value="Ошибка╳">
       <img class="iconkaGX" src = "znak.png" alt="znak" width="24" height="24">
     </div> -->
+</div>
+</section>
+<section>
+<div id="proverka-dann">
+  <div class="sformirovano">
+    <spam>Заявление сформировано</spam>
+    <div class="vedd-dann">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <mask id="mask0_91_12256" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+          <path d="M11 7H13V9H11V7ZM11 11H13V17H11V11ZM12 2C6.47 2 2 6.5 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.58 20 4 16.42 4 12C4 7.58 7.58 4 12 4C16.42 4 20 7.58 20 12C20 16.42 16.42 20 12 20Z" fill="black"/>
+          </mask>
+          <g mask="url(#mask0_91_12256)">
+          <rect width="24" height="24" fill="#28B1D7"/>
+          </g>
+          </svg>
+          <div>Проверьте введённые данные и отправьте заявление на подпись.</div>
   </div>
+  </div>
+    <div class="svodka">
+      <div class="sotrydnik">
+              <div class="shapka">Cотрудник</div>
+              <div class="material">Сизова Евгения Викторовна</div>
+      </div>
+      <div class="doljnost">
+              <div class="shapka">Должность</div>
+              <div class="material">Продуктовый дизайнер</div>
+      </div>
+      <div class="podrazdelenie">
+              <div class="shapka">Подразделение</div>
+              <div class="material">Группа проектирования интерфейсов</div>
+      </div>
+      <div class="tip-otpyska">
+              <div class="shapka">Тип отпуска</div>
+              <div class="karandashik">
+              <div class="material">Свой</div>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g opacity="0.6">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M9.625 15.7351L10.597 17.4831L16.279 11.8011L14.919 10.4411L9.625 15.7351ZM8.265 14.3751L13.56 9.08008L12.2 7.72008L6.518 13.4021L8.266 14.3741L8.265 14.3751ZM17.639 10.4411L19.679 8.40108L15.599 4.32108L13.559 6.36108L15.599 8.40108L17.639 10.4411ZM9.139 18.6681L7.78 16.2201L5.333 14.8601L4.381 19.6201L9.141 18.6681H9.139ZM14.889 2.31208C15.281 1.92008 15.909 1.91208 16.301 2.30308L21.697 7.70008C22.084 8.08808 22.084 8.71708 21.687 9.11308L10.16 20.6401L2 22.0001L3.36 13.8401L14.888 2.31308L14.889 2.31208Z" fill="black"/>
+                </g>
+                </svg>
+              </div>
+      </div>
+      <div class="kolvo-day">
+              <div class="shapka">Количество дней</div>
+              <div class="karandashik">
+              <div class="material">123</div>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g opacity="0.6">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M9.625 15.7351L10.597 17.4831L16.279 11.8011L14.919 10.4411L9.625 15.7351ZM8.265 14.3751L13.56 9.08008L12.2 7.72008L6.518 13.4021L8.266 14.3741L8.265 14.3751ZM17.639 10.4411L19.679 8.40108L15.599 4.32108L13.559 6.36108L15.599 8.40108L17.639 10.4411ZM9.139 18.6681L7.78 16.2201L5.333 14.8601L4.381 19.6201L9.141 18.6681H9.139ZM14.889 2.31208C15.281 1.92008 15.909 1.91208 16.301 2.30308L21.697 7.70008C22.084 8.08808 22.084 8.71708 21.687 9.11308L10.16 20.6401L2 22.0001L3.36 13.8401L14.888 2.31308L14.889 2.31208Z" fill="black"/>
+                </g>
+                </svg>
+              </div>
+      </div>
+      <div class="half-life">
+              <div class="shapka">Период отпуска</div>
+              <div class="karandashik">
+              <div class="material">с 23 по 24</div>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g opacity="0.6">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M9.625 15.7351L10.597 17.4831L16.279 11.8011L14.919 10.4411L9.625 15.7351ZM8.265 14.3751L13.56 9.08008L12.2 7.72008L6.518 13.4021L8.266 14.3741L8.265 14.3751ZM17.639 10.4411L19.679 8.40108L15.599 4.32108L13.559 6.36108L15.599 8.40108L17.639 10.4411ZM9.139 18.6681L7.78 16.2201L5.333 14.8601L4.381 19.6201L9.141 18.6681H9.139ZM14.889 2.31208C15.281 1.92008 15.909 1.91208 16.301 2.30308L21.697 7.70008C22.084 8.08808 22.084 8.71708 21.687 9.11308L10.16 20.6401L2 22.0001L3.36 13.8401L14.888 2.31308L14.889 2.31208Z" fill="black"/>
+                </g>
+                </svg>
+              </div>
+      </div>
+    </div>
+  <div class="okonchatpodtvergdenie" >
+    <input class="forma" type="submit" value="Отправить заявление на подпись" onmousedown="viewshag2()">
+  </div>
+</div>
   <!--Карта профиля, человека, который к нам обратился-->
   <!-- <div id="usercard"> -->
-  </div>
     <!-- <a class="link" href="https://sokolov.ru">Link</a> -->
      <!--Просто ссылка для проверки-->
     <!-- <button id="btn" class="button">Show/Hide Main Button</button> -->
@@ -140,3 +208,9 @@
     <!-- <button id="btnED" class="button">Enable/Disable Main Button</button> -->
     <!--Кнопка, чтобы сделать кнопку активной/неактивной-->
 </section>
+<script>
+  function viewshag2(){
+  document.getElementById("podachazaevleniy").style.display = "none";
+  document.getElementById("proverka-dann").style.display = "flex";
+};
+</script>
