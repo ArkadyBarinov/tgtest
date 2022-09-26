@@ -67,7 +67,7 @@
             text-transform: uppercase;
         }
         section {
-            padding: 15px 15px 65px;
+            padding: 15px 15px;
             text-align: center;
         }
         p {
@@ -81,7 +81,7 @@
           border-radius: 8px;
           padding: 16px;
           gap: 12px;
-          width: 364px;
+          width: 343px;
           height: 56px;
         }
         .GlButton {
@@ -109,7 +109,7 @@
         align-items: center;
         padding: 12px 8px;
         gap: 8px;
-        width: 250px;
+        width: 343px;
         height: 48px;
         border: 2px solid #B3B3B3;
         border-radius: 8px;
@@ -129,7 +129,7 @@
         }
         .iconka {
           position:absolute;
-          left: 250px;
+          left: 343px;
           top: 42px;
         }
          .ViborOT {
@@ -228,28 +228,6 @@
         #twoShag {
           flex-direction:column;
         }
-        .success {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          padding: 8px;
-          width: 224px;
-          height: 40px;
-          background: #E2F5D6;
-          border-radius: 8px;
-        }
-        .nosuccess {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          padding: 8px;
-          width: 224px;
-          height: 40px;
-          background: #F9D6D2;
-          border-radius: 8px;
-        }
         .iconkaGX {
           position:absolute;
           left: 75px;
@@ -323,7 +301,7 @@
         align-items: center;
         padding: 12px 8px;
         gap: 8px;
-        width: 250px;
+        width: 343px;
         height: 48px;
         border: 2px solid #B3B3B3;
         border-radius: 8px;
@@ -340,7 +318,7 @@
         align-items: center;
         padding: 12px 8px;
         gap: 8px;
-        width: 250px;
+        width: 343px;
         height: 48px;
         border: 2px solid #B3B3B3;
         border-radius: 8px;
@@ -359,6 +337,11 @@
         }
         #podachazaevleniy {
             display: flex;
+            box-sizing: border-box;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            text-align: start;
         }
         #proverka-dann {
             display: none;
