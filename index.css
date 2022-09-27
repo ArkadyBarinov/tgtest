@@ -376,4 +376,88 @@
             margin-bottom: 8px;
             margin-top: 16px;
         }
-    
+
+
+
+        *{
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        .wrapper {
+            max-width: 500px;
+            margin: 0 auto;
+            font-family: Arial;
+         }
+.btn {
+            position: absolute;
+            width: 220px;
+            background: #FFFFFF;
+            padding:12px 8px;
+            cursor: pointer;
+            font-size: 16px;
+            gap: 8px;
+            width: 343px;
+            height: 48px;
+            background: #FFFFFF;
+            border: 2px solid #B3B3B3;
+            border-radius: 8px;
+            flex: none;
+            order: 1;
+            align-self: stretch;
+            flex-grow: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            text-align: start;
+}
+.popup {
+            display: block;
+            margin: 0 auto;
+            width: 100%;
+            background-color:  white;
+            padding: 30px;
+            position: absolute;
+            transition: .5s all;
+            left: 0;
+            bottom: 0px;
+}
+.popup input{
+            display: block;
+
+            border: none;
+
+            line-height: 25px;
+
+}
+.submit {
+    background-color: #fff;
+    cursor: pointer; 
+    text-align: start;
+}
+#modal {
+    display: none;
+}
+#modal:checked ~ .popup {
+    top: 100%;
+}
+.closetype {
+    position:absolute;
+    top:5px;
+    right: 10px;
+    transform: rotate(45deg);
+    font-size: 24px;
+    cursor: pointer;
+}
+.vvodkolvoday {
+    margin-top: 100px;
+}
+.vibirotp {
+    display: flex;
+    justify-content:space-between;
+}
+.wradio {
+    display:flex;
+    justify-content:flex-end
+}
