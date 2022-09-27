@@ -383,6 +383,7 @@
             padding: 0;
             margin: 0;
             box-sizing: border-box;
+            margin-bottom: 3px;
         }
         .wrapper {
             max-width: 500px;
@@ -391,8 +392,6 @@
          }
 .btn {
             position: absolute;
-            width: 220px;
-            background: #FFFFFF;
             padding:12px 8px;
             cursor: pointer;
             font-size: 16px;
@@ -451,7 +450,7 @@
     cursor: pointer;
 }
 .vvodkolvoday {
-    margin-top: 100px;
+    margin-top: 70px;
 }
 .vibirotp {
     display: flex;
@@ -460,4 +459,8 @@
 .wradio {
     display:flex;
     justify-content:flex-end
+}
+.fortodate {
+    margin-top: 12px;
+    margin-bottom: -20px;
 }
