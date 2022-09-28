@@ -82,6 +82,7 @@
           gap: 12px;
           width: 343px;
           height: 56px;
+          z-index: 1;
         }
         .GlButton {
           box-sizing: border-box;
@@ -441,9 +442,11 @@
         }
         #modal {
             display: none;
+            z-index: 101;
         }
         #modal:checked ~ .popup {
             display:none;
+            z-index: 101;
         }
         .closetype {
             position:absolute;
@@ -469,5 +472,5 @@
             margin-bottom: -20px;
         }
         .galka {
-            z-index: 2;
+            z-index: 2222;
         }
