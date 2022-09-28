@@ -37,7 +37,14 @@
 
               <div class=wrapper">
                 <input type="checkbox" id="modal">
-                <label class="btn" for="modal">Выберите тип отпуска</label>
+                <div>
+                  <label class="btn" for="modal">Выберите тип отпуска</label>            
+                  <svg class="galka" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g opacity="0.6">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M7.41 8.58002L12 13.17L16.59 8.58002L18 10L12 16L6 10L7.41 8.58002Z" fill="black"/>
+                    </g>
+                    </svg>
+                  </div>    
                 <form action="" class="popup"id="popup" onmousedown="viewpoput()">
                   <div class="vibirotp" onmousedown="viewpoput()">
                     <input class="submit" type="submit" value="Ежегодный оплачиваемый отпуск">
@@ -53,7 +60,9 @@
                   </div>
                       <label class="closetype" for="modal">+</label>
                 </form>
+                
               </div>
+              
               <!-- <input class="menu-opened" type="text" value="другоe">
 
               <div id="menu">
@@ -235,22 +244,6 @@
   function viewshag3(){
   document.getElementById("proverka-dann").style.display = "none";
   document.getElementById("closewindow").style.display = "flex";
-};
-</script>
-<script>
-  function viewmenu3(){
-  document.getElementById("proverka-dann").style.display = "none";
-  document.getElementById("closewindow").style.display = "flex";
-};
-</script>
-<script>
-  function viewmenu3(){
-  document.onclick("menu").style.display = "flex";
-};
-</script>
-<script>
-  function viewmenu3(){
-  document.getElementById("menu").style.display = "none";
 };
 </script>
 <script>

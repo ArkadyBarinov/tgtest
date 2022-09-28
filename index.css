@@ -289,7 +289,8 @@
         align-items: center;
         padding: 12px 8px;
         gap: 8px;
-        width: 343px;
+        width: 100%;
+        max-width: 343px;
         height: 48px;
         border: 2px solid #B3B3B3;
         border-radius: 8px;
@@ -306,7 +307,8 @@
         align-items: center;
         padding: 12px 8px;
         gap: 8px;
-        width: 343px;
+        width: 100%;
+        max-width: 343px;
         height: 48px;
         border: 2px solid #B3B3B3;
         border-radius: 8px;
@@ -390,13 +392,14 @@
             margin: 0 auto;
             font-family: Arial;
          }
-.btn {
+        .btn {
             position: absolute;
             padding:12px 8px;
             cursor: pointer;
             font-size: 16px;
             gap: 8px;
-            width: 343px;
+            width: 100%;
+            max-width: 343px;
             height: 48px;
             background: #FFFFFF;
             border: 2px solid #B3B3B3;
@@ -410,8 +413,9 @@
             justify-content: center;
             align-items: flex-start;
             text-align: start;
-}
-.popup {
+            z-index: 1;
+        }
+        .popup {
             display: block;
             margin: 0 auto;
             width: 100%;
@@ -421,46 +425,49 @@
             transition: .5s all;
             left: 0;
             bottom: 0px;
-}
-.popup input{
+        }
+        .popup input{
             display: block;
 
             border: none;
 
             line-height: 25px;
 
-}
-.submit {
-    background-color: #fff;
-    cursor: pointer; 
-    text-align: start;
-}
-#modal {
-    display: none;
-}
-#modal:checked ~ .popup {
-    top: 100%;
-}
-.closetype {
-    position:absolute;
-    top:5px;
-    right: 10px;
-    transform: rotate(45deg);
-    font-size: 24px;
-    cursor: pointer;
-}
-.vvodkolvoday {
-    margin-top: 70px;
-}
-.vibirotp {
-    display: flex;
-    justify-content:space-between;
-}
-.wradio {
-    display:flex;
-    justify-content:flex-end
-}
-.fortodate {
-    margin-top: 12px;
-    margin-bottom: -20px;
-}
+        }
+        .submit {
+            background-color: #fff;
+            cursor: pointer; 
+            text-align: start;
+        }
+        #modal {
+            display: none;
+        }
+        #modal:checked ~ .popup {
+            display:none;
+        }
+        .closetype {
+            position:absolute;
+            top:5px;
+            right: 10px;
+            transform: rotate(45deg);
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .vvodkolvoday {
+            margin-top: 70px;
+        }
+        .vibirotp {
+            display: flex;
+            justify-content:space-between;
+        }
+        .wradio {
+            display:flex;
+            justify-content:flex-end
+        }
+        .fortodate {
+            margin-top: 12px;
+            margin-bottom: -20px;
+        }
+        .galka {
+            z-index: 2;
+        }
