@@ -39,28 +39,33 @@
                 <input type="checkbox" id="modal">
                 <div>
                   <label class="btn" for="modal">Выберите тип отпуска</label>            
-                  <svg class="galka" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g opacity="0.6">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M7.41 8.58002L12 13.17L16.59 8.58002L18 10L12 16L6 10L7.41 8.58002Z" fill="black"/>
-                    </g>
-                    </svg>
                   </div>    
                 <form action="" class="popup"id="popup" onmousedown="viewpoput()">
                   <div class="vibirotp" onmousedown="viewpoput()">
-                    <input class="submit" type="submit" value="Ежегодный оплачиваемый отпуск">
-                    <input class="wradio" type="radio" name="question">
-                  </div>
-                  <div class="vibirotp">
-                    <input class="submit" type="submit" value="Отпуск за свой счёт">
-                    <input class="wradio" type="radio" name="question">
-                  </div>
-                  <div class="vibirotp">
-                    <input class="submit" type="submit" value="Другое">
-                    <input class="wradio" type="radio" name="question">
-                  </div>
+                      <div class="vibirotp1">
+                      <label class="submit" for="1">Ежегодный оплачиваемый отпуск</label>
+                      <input class="wradio" type="radio" id="1"
+                      name="contact" value="01">
+                    </div>
+                      <div class="vibirotp1">
+                      <label class="submit" for="2">Отпуск за свой счёт</label>
+                     <input class="wradio" type="radio" id="2"
+                      name="contact" value="02">
+                    </div>
+                      <div class="vibirotp1">
+                     <label class="submit" for="3">Другое</label>
+                     <input class="wradio" type="radio" id="3"
+                      name="contact" value="03">
+                    </div>
+                   </div>
                       <label class="closetype" for="modal">+</label>
+
                 </form>
-                
+                <svg class="galka" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g opacity="0.6">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.41 8.58002L12 13.17L16.59 8.58002L18 10L12 16L6 10L7.41 8.58002Z" fill="black"/>
+                  </g>
+                  </svg>
               </div>
               
               <!-- <input class="menu-opened" type="text" value="другоe">
@@ -111,7 +116,7 @@
           <p>Дата отпуска</p>
         </div>
 <!-- календарь -->
-      <div class="input"><input id="datepicker" placeholder="Выберите дату начала отпуска">
+      <div class="cale"><input id="datepicker" placeholder="Выберите дату начала отпуска">
         <span><img class="iconka" src = "calendar.svg" alt="SVG" width="24" height="24"></span>
       </div>
       <script>

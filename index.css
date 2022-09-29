@@ -46,15 +46,20 @@
             pointer-events: none;
         }
         .forma {
-          display: block;
+            display: block;
             width: 100%;
             font-size: 14px;
             margin: 15px 0;
             padding: 12px 20px;
             border: none;
-            border-radius: 4px;
             color: #ffffff;
             cursor: pointer;
+            background: #000000;
+            border-radius: 8px;
+            padding: 16px;
+            gap: 12px;
+            height: 56px;
+            z-index: 1;
         }
         button.close_btn {
             position: absolute;
@@ -75,17 +80,7 @@
           display:block;
 
         }
-        .forma {
-          background: #000000;
-          border-radius: 8px;
-          padding: 16px;
-          gap: 12px;
-          width: 343px;
-          height: 56px;
-          z-index: 1;
-        }
         .GlButton {
-          box-sizing: border-box;
           position: relative;
           display: flex;
           flex-direction: row;
@@ -109,7 +104,7 @@
         align-items: center;
         padding: 12px 8px;
         gap: 8px;
-        width: 343px;
+        width: 100%;
         height: 48px;
         border: 2px solid #B3B3B3;
         border-radius: 8px;
@@ -123,9 +118,12 @@
           display:inline-block;
           margin-top: 20px;
         }
+        .input.forma {
+            width: 100%;
+        } 
         .iconka {
           position:absolute;
-          left: 314px;
+          right: 10px;
           top: 12px;
         }
          .ViborOT {
@@ -230,7 +228,7 @@
           justify-content: center;
           align-items: center;
         }
-        [type="radio"]:checked + label,
+        /* [type="radio"]:checked + label,
         [type="radio"]:not(:checked) + label
         {
             position: relative;
@@ -274,7 +272,7 @@
             opacity: 1;
             -webkit-transform: scale(1);
             transform: scale(1);
-        }
+        } */
         .labeLL {
           padding: 20px;
         }
@@ -291,7 +289,6 @@
         padding: 12px 8px;
         gap: 8px;
         width: 100%;
-        max-width: 343px;
         height: 48px;
         border: 2px solid #B3B3B3;
         border-radius: 8px;
@@ -309,7 +306,6 @@
         padding: 12px 8px;
         gap: 8px;
         width: 100%;
-        max-width: 343px;
         height: 48px;
         border: 2px solid #B3B3B3;
         border-radius: 8px;
@@ -385,22 +381,20 @@
         *{
             padding: 0;
             margin: 0;
-            box-sizing: border-box;
             margin-bottom: 3px;
         }
         .wrapper {
-            max-width: 500px;
             margin: 0 auto;
             font-family: Arial;
+            display: block;
          }
         .btn {
-            position: absolute;
+            box-sizing: border-box;
             padding:12px 8px;
             cursor: pointer;
             font-size: 16px;
             gap: 8px;
             width: 100%;
-            max-width: 343px;
             height: 48px;
             background: #FFFFFF;
             border: 2px solid #B3B3B3;
@@ -409,7 +403,7 @@
             order: 1;
             align-self: stretch;
             flex-grow: 0;
-            display: flex;
+            display: block;
             flex-direction: column;
             justify-content: center;
             align-items: flex-start;
@@ -417,15 +411,18 @@
             z-index: 1;
         }
         .popup {
-            display: block;
+            /* display: flex;
+            flex-direction:column;
+    justify-content: space-between; */
+
             margin: 0 auto;
             width: 100%;
             background-color:  white;
             padding: 30px;
-            position: absolute;
-            transition: .5s all;
+            position: fixed;
             left: 0;
             bottom: 0px;
+            z-index: 2;
         }
         .popup input{
             display: block;
@@ -459,18 +456,30 @@
         .vvodkolvoday {
             margin-top: 40px;
         }
-        .vibirotp {
-            display: flex;
-            justify-content:space-between;
+        .vibirotp1 {
+            display:flex;
+            justify-content: space-between
         }
         .wradio {
             display:flex;
-            justify-content:flex-end
+            justify-content: space-between
         }
         .fortodate {
             margin-top: 12px;
             margin-bottom: -20px;
         }
         .galka {
-            z-index: 2222;
+            z-index: 5;
+            position: absolute;
+            top:10px;
+            right: 10px;
+
         }
+        .cale {
+            position: relative;
+            display:block;
+            margin-top: 20px;
+        }
+
+
+        
