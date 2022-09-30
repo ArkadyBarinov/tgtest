@@ -129,7 +129,7 @@
             lang: "ru-RU",
             format: "DD.MM.YYYY",
             calendars: 1,
-            autoApply: true,
+            autoApply: false,
             locale: {
                 cancel: "Отмена",
                 apply: "Подтвердить"
@@ -265,5 +265,6 @@
 };
 </script>
 <script>
+   let tg = window.Telegram.WebApp;
     tg.expand();
 </script>
