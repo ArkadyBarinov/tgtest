@@ -481,6 +481,10 @@
             display:block;
             margin-top: 20px;
         }
+        .podtverdit {
+          display: flex;
+          justify-content:space-around;
+        }
 
 
         
