@@ -520,6 +520,15 @@
           text-align: center;
           
         }
+        .save:hover {
+          background: #404040;
+        }
+        .save:focus {
+        outline: none;
+        }
+        .save:active {
+        background: #595959;
+        }
 
 
         
