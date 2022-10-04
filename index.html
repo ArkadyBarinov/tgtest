@@ -35,7 +35,7 @@
             <div>
 
 
-              <div class=wrapper">
+              <div class=wrappers">
                 <input type="checkbox" id="modal">
                 <div>
                   <label class="btn" for="modal">Выберите тип отпуска</label>            
@@ -165,11 +165,45 @@
               <div class="shapka">Тип отпуска</div>
               <div class="karandashik">
               <div class="material">Свой</div>
-              <svg  class="carandash1"  name="car1" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"  onclick="viewpoput()">
+              <a   class="picture" href="#modals">
+              <svg name="car1" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"  onclick="viewpoput()">
                 <g opacity="0.6">
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M9.625 15.7351L10.597 17.4831L16.279 11.8011L14.919 10.4411L9.625 15.7351ZM8.265 14.3751L13.56 9.08008L12.2 7.72008L6.518 13.4021L8.266 14.3741L8.265 14.3751ZM17.639 10.4411L19.679 8.40108L15.599 4.32108L13.559 6.36108L15.599 8.40108L17.639 10.4411ZM9.139 18.6681L7.78 16.2201L5.333 14.8601L4.381 19.6201L9.141 18.6681H9.139ZM14.889 2.31208C15.281 1.92008 15.909 1.91208 16.301 2.30308L21.697 7.70008C22.084 8.08808 22.084 8.71708 21.687 9.11308L10.16 20.6401L2 22.0001L3.36 13.8401L14.888 2.31308L14.889 2.31208Z" fill="black"/>
                 </g>
                 </svg>
+                <!-- <a class="picture" href="#modal">Это картинка</a> -->
+                <!--Нажать на ссылку, чтобы войти-->        
+ 
+                <div id="modals" class="wrapper">
+                  <a class="substrates" href="#closes"></a> <!--Нажать на серый фон, чтобы выйти-->
+                  <form action="" class="popup"id="popup" onmousedown="viewpoput()">
+                    <div class="vibirotp" onmousedown="viewpoput()">
+                        <div class="vibirotp1">
+                        <label class="submit" for="1">Ежегодный оплачиваемый отпуск</label>
+                        <input class="wradio" type="radio" id="1"
+                        name="contact" value="01">
+                      </div>
+                        <div class="vibirotp1">
+                        <label class="submit" for="2">Отпуск за свой счёт</label>
+                       <input class="wradio" type="radio" id="2"
+                        name="contact" value="02">
+                      </div>
+                        <div class="vibirotp1">
+                       <label class="submit" for="3">Другое</label>
+                       <input class="wradio" type="radio" id="3"
+                        name="contact" value="03">
+                      </div>
+                     </div>
+                        <label class="closetype" for="modal">+</label>
+                     <div class="podtverdit">
+                      <div class="back">
+                        Отменить
+                      </div>
+                      <div class="save">
+                        Сохранить
+                      </div>
+                     </div> 
+                </div>
               </div>
       </div>
       <script>
