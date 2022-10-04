@@ -561,8 +561,13 @@
           margin-top: -50px;
       }
       .closes { /* Это закрывашка <a class="close" href="#close"> блока <div class="block"> , обозначенная крестиком*/ 
-         color: red;
-         font-weight: bold;   
+        position:absolute;
+        top:5px;
+        right: 10px;
+        transform: rotate(45deg);
+        font-size: 24px;
+        cursor: pointer;
+        text-decoration: none;  
       }
       #modals { /* Это состояние обертки (модального окна), когда оно в "покое": его не видно и на она не реагирует на нажатие*/        
           display: none;
