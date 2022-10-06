@@ -322,7 +322,6 @@
             box-sizing: border-box;
             flex-direction: column;
             justify-content: center;
-            align-items: flex-start;
             text-align: start;
             margin-left: 16px;
             margin-right: 16px;
@@ -471,8 +470,8 @@
         .galka {
             z-index: 5;
             position: absolute;
-            top:116px;
-            right: 20px;
+            top: 125px;
+            right: 25px;
 
         }
         .cale {
