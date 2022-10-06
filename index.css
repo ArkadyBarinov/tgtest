@@ -561,7 +561,8 @@
         transform: rotate(45deg);
         font-size: 24px;
         cursor: pointer;
-        text-decoration: none;  
+        text-decoration: none;
+        color:rgba(100, 100, 100, 0.6)  
       }
       #modals { /* Это состояние обертки (модального окна), когда оно в "покое": его не видно и на она не реагирует на нажатие*/        
           display: none;
