@@ -296,6 +296,7 @@
         order: 1;
         align-self: stretch;
         flex-grow: 0;
+        margin: 24px 0px 16px 0px;
         }
         #tyte {
           box-sizing: border-box;
@@ -431,10 +432,12 @@
             line-height: 25px;
 
         }
+        
         .submit {
             background-color: #fff;
             cursor: pointer; 
             text-align: start;
+            margin-bottom: 10px;
         }
         #modal {
             display: none;
@@ -444,6 +447,9 @@
             display:none;
             z-index: 101;
         }
+        #modal:checked + label span{
+          content: 'другой текст';
+      }
         .closetype {
             position:absolute;
             top:5px;
@@ -683,4 +689,13 @@
         }
         .formacalen {
           width: 100%;
+        }
+        #w1:checked + label span {
+          content: 'другой текст';
+        }
+        #w2:checked + label span {
+          content: 'другой текст';
+        }
+        #w3:checked + label span {
+          content: 'другой текст';
         }
