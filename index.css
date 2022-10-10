@@ -691,11 +691,11 @@
           width: 100%;
         }
         #w1:checked + label span {
-          content: 'другой текст';
+          content: 'Ежегодный оплачиваемый отпуск';
         }
         #w2:checked + label span {
-          content: 'другой текст';
+          content: 'Отпуск за свой счёт';
         }
         #w3:checked + label span {
-          content: 'другой текст';
+          content: 'Другое';
         }
