@@ -79,6 +79,16 @@
                   </label>
                    </div>
                 </form>
+<!-- 
+
+                <div><label class="new-input"><input name="rb-1" type="radio"><s></s><span>First</span></label></div>
+                <div><label class="new-input"><input name="rb-1" type="radio"><s></s><span>Second</span></label></div>
+                <div><label class="new-input"><input name="rb-1" type="radio"><s></s><span>Third</span></label></div> -->
+
+
+
+
+
               </div>
               
             </div>
@@ -103,7 +113,7 @@
         const picker = new easepick.create({
             element: "#datepicker",
             css: [
-                "https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.0/dist/index.css"
+                "calendar.css"
             ],
             zIndex: 10,
             lang: "ru-RU",
@@ -122,7 +132,7 @@
                     minYear: 2022,
                     maxYear: 2023
                 },
-                resetButton: true
+                resetButton: false
             },
             plugins: [
                 "AmpPlugin",

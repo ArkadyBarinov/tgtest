@@ -74,8 +74,6 @@
         section {
             text-align: center;
         }
-        p {
-        }
         .qs-datepicker-container {
           display:block;
 
@@ -698,3 +696,67 @@
         #w3:checked + label span {
           content: 'Другое';
         }
+        
+        .new-input > INPUT[type="radio"] + S::before {
+          content: "Svoy";
+        }
+        
+        .new-input > INPUT[type="radio"]:checked + S::before {
+          content: "Oplach";
+        }
+        .new-input > S {
+          text-decoration: none;
+          margin-left: 3px;
+          margin-right: 6px;
+        }
+        
+        .new-input > S::before {
+          display: inline-block;
+
+          text-align: center;
+        }
+        
+        HTML,
+        BODY {
+          box-sizing: border-box;
+        }
+        *,
+        *::before,
+        *::after {
+          box-sizing: inherit;
+        }
+        
+        LABEL {
+          cursor: pointer;
+          user-select: none;
+        }
+        
+        .demo {
+          display: flex;
+          flex-direction: row;
+          flex-wrap: wrap;
+          justify-content: flex-start;
+        }
+        #top_center,
+        #use_bgc,
+        #no_input,
+        #no_input:checked ~ .row INPUT {
+          display: none;
+        }
+        
+        #use_bgc:checked ~ .row > div {
+          background-color: #eceff1;
+        }
+        #use_bgc:checked ~ .row > div S {
+          background-color: #bbdefb;
+        }
+        #top_center:checked ~ .row LABEL {
+          align-items: center;
+        }
+        
+        .row0 > LABEL {
+          white-space: nowrap;
+          text-decoration: underline;
+        }
+        
+      

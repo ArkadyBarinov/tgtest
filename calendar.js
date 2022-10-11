@@ -1,1278 +1,1942 @@
-// WebView
-(function () {
-    var eventHandlers = {};
-  
-    var locationHash = '';
-    try {
-      locationHash = location.hash.toString();
-    } catch (e) {}
-  
-    var initParams = urlParseHashParams(locationHash);
-    var storedParams = sessionStorageGet('initParams');
-    if (storedParams) {
-      for (var key in storedParams) {
-        if (typeof initParams[key] === 'undefined') {
-          initParams[key] = storedParams[key];
-        }
-      }
-    }
-    sessionStorageSet('initParams', initParams);
-  
-    var isIframe = false, iFrameStyle;
-    try {
-      isIframe = (window.parent != null && window != window.parent);
-      if (isIframe) {
-        window.addEventListener('message', function (event) {
-          if (event.source !== window.parent) return;
-          try {
-            var dataParsed = JSON.parse(event.data);
-          } catch (e) {
-            return;
-          }
-          if (!dataParsed || !dataParsed.eventType) {
-            return;
-          }
-          if (dataParsed.eventType == 'set_custom_style') {
-            iFrameStyle.innerHTML = dataParsed.eventData;
-          } else {
-            receiveEvent(dataParsed.eventType, dataParsed.eventData);
-          }
-        });
-        iFrameStyle = document.createElement('style');
-        document.head.appendChild(iFrameStyle);
-        try {
-          window.parent.postMessage(JSON.stringify({eventType: 'iframe_ready'}), '*');
-        } catch (e) {}
-      }
-    } catch (e) {}
-  
-    function urlSafeDecode(urlencoded) {
-      try {
-        urlencoded = urlencoded.replace(/\+/g, '%20');
-        return decodeURIComponent(urlencoded);
-      } catch (e) {
-        return urlencoded;
-      }
-    }
-  
-    function urlParseHashParams(locationHash) {
-      locationHash = locationHash.replace(/^#/, '');
-      var params = {};
-      if (!locationHash.length) {
-        return params;
-      }
-      if (locationHash.indexOf('=') < 0 && locationHash.indexOf('?') < 0) {
-        params._path = urlSafeDecode(locationHash);
-        return params;
-      }
-      var qIndex = locationHash.indexOf('?');
-      if (qIndex >= 0) {
-        var pathParam = locationHash.substr(0, qIndex);
-        params._path = urlSafeDecode(pathParam);
-        locationHash = locationHash.substr(qIndex + 1);
-      }
-      var query_params = urlParseQueryString(locationHash);
-      for (var k in query_params) {
-        params[k] = query_params[k];
-      }
-      return params;
-    }
-  
-    function urlParseQueryString(queryString) {
-      var params = {};
-      if (!queryString.length) {
-        return params;
-      }
-      var queryStringParams = queryString.split('&');
-      var i, param, paramName, paramValue;
-      for (i = 0; i < queryStringParams.length; i++) {
-        param = queryStringParams[i].split('=');
-        paramName = urlSafeDecode(param[0]);
-        paramValue = param[1] == null ? null : urlSafeDecode(param[1]);
-        params[paramName] = paramValue;
-      }
-      return params;
-    }
-  
-    // Telegram apps will implement this logic to add service params (e.g. tgShareScoreUrl) to game URL
-    function urlAppendHashParams(url, addHash) {
-      // url looks like 'https://game.com/path?query=1#hash'
-      // addHash looks like 'tgShareScoreUrl=' + encodeURIComponent('tgb://share_game_score?hash=very_long_hash123')
-  
-      var ind = url.indexOf('#');
-      if (ind < 0) {
-        // https://game.com/path -> https://game.com/path#tgShareScoreUrl=etc
-        return url + '#' + addHash;
-      }
-      var curHash = url.substr(ind + 1);
-      if (curHash.indexOf('=') >= 0 || curHash.indexOf('?') >= 0) {
-        // https://game.com/#hash=1 -> https://game.com/#hash=1&tgShareScoreUrl=etc
-        // https://game.com/#path?query -> https://game.com/#path?query&tgShareScoreUrl=etc
-        return url + '&' + addHash;
-      }
-      // https://game.com/#hash -> https://game.com/#hash?tgShareScoreUrl=etc
-      if (curHash.length > 0) {
-        return url + '?' + addHash;
-      }
-      // https://game.com/# -> https://game.com/#tgShareScoreUrl=etc
-      return url + addHash;
-    }
-  
-    function postEvent(eventType, callback, eventData) {
-      if (!callback) {
-        callback = function () {};
-      }
-      if (eventData === undefined) {
-        eventData = '';
-      }
-  
-      if (window.TelegramWebviewProxy !== undefined) {
-        TelegramWebviewProxy.postEvent(eventType, JSON.stringify(eventData));
-        callback();
-      }
-      else if (window.external && 'notify' in window.external) {
-        window.external.notify(JSON.stringify({eventType: eventType, eventData: eventData}));
-        callback();
-      }
-      else if (isIframe) {
-        try {
-          var trustedTarget = 'https://web.telegram.org';
-          // For now we don't restrict target, for testing purposes
-          trustedTarget = '*';
-          window.parent.postMessage(JSON.stringify({eventType: eventType, eventData: eventData}), trustedTarget);
-          if (initParams.tgWebAppDebug) {
-            console.log('[Telegram.WebView] postEvent via postMessage', eventType, eventData);
-          }
-          callback();
-        } catch (e) {
-          callback(e);
-        }
-      }
-      else {
-        if (initParams.tgWebAppDebug) {
-          console.log('[Telegram.WebView] postEvent', eventType, eventData);
-        }
-        callback({notAvailable: true});
-      }
-    };
-  
-    function receiveEvent(eventType, eventData) {
-      callEventCallbacks(eventType, function(callback) {
-        callback(eventType, eventData);
-      });
-    }
-  
-    function callEventCallbacks(eventType, func) {
-      var curEventHandlers = eventHandlers[eventType];
-      if (curEventHandlers === undefined ||
-          !curEventHandlers.length) {
-        return;
-      }
-      for (var i = 0; i < curEventHandlers.length; i++) {
-        try {
-          func(curEventHandlers[i]);
-        } catch (e) {}
-      }
-    }
-  
-    function onEvent(eventType, callback) {
-      if (eventHandlers[eventType] === undefined) {
-        eventHandlers[eventType] = [];
-      }
-      var index = eventHandlers[eventType].indexOf(callback);
-      if (index === -1) {
-        eventHandlers[eventType].push(callback);
-      }
-    };
-  
-    function offEvent(eventType, callback) {
-      if (eventHandlers[eventType] === undefined) {
-        return;
-      }
-      var index = eventHandlers[eventType].indexOf(callback);
-      if (index === -1) {
-        return;
-      }
-      eventHandlers[eventType].splice(index, 1);
-    };
-  
-    function openProtoUrl(url) {
-      if (!url.match(/^(web\+)?tgb?:\/\/./)) {
-        return false;
-      }
-      var useIframe = navigator.userAgent.match(/iOS|iPhone OS|iPhone|iPod|iPad/i) ? true : false;
-      if (useIframe) {
-        var iframeContEl = document.getElementById('tgme_frame_cont') || document.body;
-        var iframeEl = document.createElement('iframe');
-        iframeContEl.appendChild(iframeEl);
-        var pageHidden = false;
-        var enableHidden = function () {
-          pageHidden = true;
-        };
-        window.addEventListener('pagehide', enableHidden, false);
-        window.addEventListener('blur', enableHidden, false);
-        if (iframeEl !== null) {
-          iframeEl.src = url;
-        }
-        setTimeout(function() {
-          if (!pageHidden) {
-            window.location = url;
-          }
-          window.removeEventListener('pagehide', enableHidden, false);
-          window.removeEventListener('blur', enableHidden, false);
-        }, 2000);
-      }
-      else {
-        window.location = url;
-      }
-      return true;
-    }
-  
-    function sessionStorageSet(key, value) {
-      try {
-        window.sessionStorage.setItem('__telegram__' + key, JSON.stringify(value));
-        return true;
-      } catch(e) {}
-      return false;
-    }
-    function sessionStorageGet(key) {
-      try {
-        return JSON.parse(window.sessionStorage.getItem('__telegram__' + key));
-      } catch(e) {}
-      return null;
-    }
-  
-    if (!window.Telegram) {
-      window.Telegram = {};
-    }
-    window.Telegram.WebView = {
-      initParams: initParams,
-      isIframe: isIframe,
-      onEvent: onEvent,
-      offEvent: offEvent,
-      postEvent: postEvent,
-      receiveEvent: receiveEvent,
-      callEventCallbacks: callEventCallbacks
-    };
-  
-    window.Telegram.Utils = {
-      urlSafeDecode: urlSafeDecode,
-      urlParseQueryString: urlParseQueryString,
-      urlParseHashParams: urlParseHashParams,
-      urlAppendHashParams: urlAppendHashParams,
-      sessionStorageSet: sessionStorageSet,
-      sessionStorageGet: sessionStorageGet
-    };
-  
-    // For Windows Phone app
-    window.TelegramGameProxy_receiveEvent = receiveEvent;
-  
-    // App backward compatibility
-    window.TelegramGameProxy = {
-      receiveEvent: receiveEvent
-    };
-  })();
-  
-  // WebApp
-  (function () {
-    var Utils = window.Telegram.Utils;
-    var WebView = window.Telegram.WebView;
-    var initParams = WebView.initParams;
-    var isIframe = WebView.isIframe;
-  
-    var WebApp = {};
-    var webAppInitData = '', webAppInitDataUnsafe = {};
-    var themeParams = {}, colorScheme = 'light';
-    var webAppVersion = '6.0';
-    var webAppPlatform = 'unknown';
-  
-    if (initParams.tgWebAppData && initParams.tgWebAppData.length) {
-      webAppInitData = initParams.tgWebAppData;
-      webAppInitDataUnsafe = Utils.urlParseQueryString(webAppInitData);
-      for (var key in webAppInitDataUnsafe) {
-        var val = webAppInitDataUnsafe[key];
-        try {
-          if (val.substr(0, 1) == '{' && val.substr(-1) == '}' ||
-              val.substr(0, 1) == '[' && val.substr(-1) == ']') {
-            webAppInitDataUnsafe[key] = JSON.parse(val);
-          }
-        } catch (e) {}
-      }
-    }
-    if (initParams.tgWebAppThemeParams && initParams.tgWebAppThemeParams.length) {
-      var themeParamsRaw = initParams.tgWebAppThemeParams;
-      try {
-        var theme_params = JSON.parse(themeParamsRaw);
-        if (theme_params) {
-          setThemeParams(theme_params);
-        }
-      } catch (e) {}
-    }
-    var theme_params = Utils.sessionStorageGet('themeParams');
-    if (theme_params) {
-      setThemeParams(theme_params);
-    }
-    if (initParams.tgWebAppVersion) {
-      webAppVersion = initParams.tgWebAppVersion;
-    }
-    if (initParams.tgWebAppPlatform) {
-      webAppPlatform = initParams.tgWebAppPlatform;
-    }
-  
-    function onThemeChanged(eventType, eventData) {
-      if (eventData.theme_params) {
-        setThemeParams(eventData.theme_params);
-        window.Telegram.WebApp.MainButton.setParams({});
-        updateBackgroundColor();
-        receiveWebViewEvent('themeChanged');
-      }
-    }
-  
-    var lastWindowHeight = window.innerHeight;
-    function onViewportChanged(eventType, eventData) {
-      if (eventData.height) {
-        window.removeEventListener('resize', onWindowResize);
-        setViewportHeight(eventData);
-      }
-    }
-  
-    function onWindowResize(e) {
-      if (lastWindowHeight != window.innerHeight) {
-        lastWindowHeight = window.innerHeight;
-        receiveWebViewEvent('viewportChanged', {
-          isStateStable: true
-        });
-      }
-    }
-  
-    function linkHandler(e) {
-      if (e.metaKey || e.ctrlKey) return;
-      var el = e.target;
-      while (el.tagName != 'A' && el.parentNode) {
-        el = el.parentNode;
-      }
-      if (el.tagName == 'A' &&
-          el.target != '_blank' &&
-          (el.protocol == 'http:' || el.protocol == 'https:') &&
-          el.hostname == 't.me') {
-        WebApp.openTgLink(el.href);
-        e.preventDefault();
-      }
-    }
-  
-    function strTrim(str) {
-      return str.toString().replace(/^\s+|\s+$/g, '');
-    }
-  
-    function receiveWebViewEvent(eventType) {
-      var args = Array.prototype.slice.call(arguments);
-      eventType = args.shift();
-      WebView.callEventCallbacks('webview:' + eventType, function(callback) {
-        callback.apply(WebApp, args);
-      });
-    }
-  
-    function onWebViewEvent(eventType, callback) {
-      WebView.onEvent('webview:' + eventType, callback);
-    };
-  
-    function offWebViewEvent(eventType, callback) {
-      WebView.offEvent('webview:' + eventType, callback);
-    };
-  
-    function setCssProperty(name, value) {
-      var root = document.documentElement;
-      if (root && root.style && root.style.setProperty) {
-        root.style.setProperty('--tg-' + name, value);
-      }
-    }
-  
-    function setThemeParams(theme_params) {
-      // temp iOS fix
-      if (theme_params.bg_color == '#1c1c1d' &&
-          theme_params.bg_color == theme_params.secondary_bg_color) {
-        theme_params.secondary_bg_color = '#2c2c2e';
-      }
-      var color;
-      for (var key in theme_params) {
-        if (color = parseColorToHex(theme_params[key])) {
-          themeParams[key] = color;
-          if (key == 'bg_color') {
-            colorScheme = isColorDark(color) ? 'dark' : 'light'
-            setCssProperty('color-scheme', colorScheme);
-          }
-          key = 'theme-' + key.split('_').join('-');
-          setCssProperty(key, color);
-        }
-      }
-      Utils.sessionStorageSet('themeParams', themeParams);
-    }
-  
-    var viewportHeight = false, viewportStableHeight = false, isExpanded = true;
-    function setViewportHeight(data) {
-      if (typeof data !== 'undefined') {
-        isExpanded = !!data.is_expanded;
-        viewportHeight = data.height;
-        if (data.is_state_stable) {
-          viewportStableHeight = data.height;
-        }
-        receiveWebViewEvent('viewportChanged', {
-          isStateStable: !!data.is_state_stable
-        });
-      }
-      var height, stable_height;
-      if (viewportHeight !== false) {
-        height = (viewportHeight - mainButtonHeight) + 'px';
-      } else {
-        height = mainButtonHeight ? 'calc(100vh - ' + mainButtonHeight + 'px)' : '100vh';
-      }
-      if (viewportStableHeight !== false) {
-        stable_height = (viewportStableHeight - mainButtonHeight) + 'px';
-      } else {
-        stable_height = mainButtonHeight ? 'calc(100vh - ' + mainButtonHeight + 'px)' : '100vh';
-      }
-      setCssProperty('viewport-height', height);
-      setCssProperty('viewport-stable-height', stable_height);
-    }
-  
-    var isClosingConfirmationEnabled = false;
-    function setClosingConfirmation(need_confirmation) {
-      if (!versionAtLeast('6.2')) {
-        console.warn('[Telegram.WebApp] Closing confirmation is not supported in version ' + webAppVersion);
-        return;
-      }
-      isClosingConfirmationEnabled = !!need_confirmation;
-      WebView.postEvent('web_app_setup_closing_behavior', false, {need_confirmation: isClosingConfirmationEnabled});
-    }
-  
-    var headerColorKey = 'bg_color';
-    function getHeaderColor() {
-      return themeParams[headerColorKey] || null;
-    }
-    function setHeaderColor(color) {
-      if (!versionAtLeast('6.1')) {
-        console.warn('[Telegram.WebApp] Header color is not supported in version ' + webAppVersion);
-        return;
-      }
-      var color_key;
-      if (color == 'bg_color' || color == 'secondary_bg_color') {
-        color_key = color;
-      } else {
-        color_key = parseColorToHex(color);
-        if (themeParams.bg_color &&
-            themeParams.bg_color == color_key) {
-          color_key = 'bg_color';
-        } else if (themeParams.secondary_bg_color &&
-                   themeParams.secondary_bg_color == color_key) {
-          color_key = 'secondary_bg_color';
-        } else {
-          color_key = false;
-        }
-      }
-      if (color_key != 'bg_color' &&
-          color_key != 'secondary_bg_color') {
-        console.error('[Telegram.WebApp] Header color key should be one of Telegram.WebApp.themeParams.bg_color, Telegram.WebApp.themeParams.secondary_bg_color, \'bg_color\', \'secondary_bg_color\'', color);
-        throw Error('WebAppHeaderColorKeyInvalid');
-      }
-      headerColorKey = color_key;
-      WebView.postEvent('web_app_set_header_color', false, {color_key: color_key});
-    }
-  
-    var backgroundColor = 'bg_color';
-    function getBackgroundColor() {
-      if (backgroundColor == 'secondary_bg_color') {
-        return themeParams.secondary_bg_color;
-      } else if (backgroundColor == 'bg_color') {
-        return themeParams.bg_color;
-      }
-      return backgroundColor;
-    }
-    function setBackgroundColor(color) {
-      if (!versionAtLeast('6.1')) {
-        console.warn('[Telegram.WebApp] Background color is not supported in version ' + webAppVersion);
-        return;
-      }
-      var bg_color;
-      if (color == 'bg_color' || color == 'secondary_bg_color') {
-        bg_color = color;
-      } else {
-        bg_color = parseColorToHex(color);
-        if (!bg_color) {
-          console.error('[Telegram.WebApp] Background color format is invalid', color);
-          throw Error('WebAppBackgroundColorInvalid');
-        }
-      }
-      backgroundColor = bg_color;
-      updateBackgroundColor();
-    }
-    var appBackgroundColor = null;
-    function updateBackgroundColor() {
-      var color = getBackgroundColor();
-      if (appBackgroundColor != color) {
-        appBackgroundColor = color;
-        WebView.postEvent('web_app_set_background_color', false, {color: color});
-      }
-    }
-  
-  
-    function parseColorToHex(color) {
-      color += '';
-      var match;
-      if (match = /^\s*#([0-9a-f]{6})\s*$/i.exec(color)) {
-        return '#' + match[1].toLowerCase();
-      }
-      else if (match = /^\s*#([0-9a-f])([0-9a-f])([0-9a-f])\s*$/i.exec(color)) {
-        return ('#' + match[1] + match[1] + match[2] + match[2] + match[3] + match[3]).toLowerCase();
-      }
-      else if (match = /^\s*rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+\.{0,1}\d*))?\)\s*$/.exec(color)) {
-        var r = parseInt(match[1]), g = parseInt(match[2]), b = parseInt(match[3]);
-        r = (r < 16 ? '0' : '') + r.toString(16);
-        g = (g < 16 ? '0' : '') + g.toString(16);
-        b = (b < 16 ? '0' : '') + b.toString(16);
-        return '#' + r + g + b;
-      }
-      return false;
-    }
-  
-    function isColorDark(rgb) {
-      rgb = rgb.replace(/[\s#]/g, '');
-      if (rgb.length == 3) {
-        rgb = rgb[0] + rgb[0] + rgb[1] + rgb[1] + rgb[2] + rgb[2];
-      }
-      var r = parseInt(rgb.substr(0, 2), 16);
-      var g = parseInt(rgb.substr(2, 2), 16);
-      var b = parseInt(rgb.substr(4, 2), 16);
-      var hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
-      return hsp < 120;
-    }
-  
-    function versionCompare(v1, v2) {
-      if (typeof v1 !== 'string') v1 = '';
-      if (typeof v2 !== 'string') v2 = '';
-      v1 = v1.replace(/^\s+|\s+$/g, '').split('.');
-      v2 = v2.replace(/^\s+|\s+$/g, '').split('.');
-      var a = Math.max(v1.length, v2.length), i, p1, p2;
-      for (i = 0; i < a; i++) {
-        p1 = parseInt(v1[i]) || 0;
-        p2 = parseInt(v2[i]) || 0;
-        if (p1 == p2) continue;
-        if (p1 > p2) return 1;
-        return -1;
-      }
-      return 0;
-    }
-  
-    function versionAtLeast(ver) {
-      return versionCompare(webAppVersion, ver) >= 0;
-    }
-  
-    function byteLength(str) {
-      if (window.Blob) {
-        try { return new Blob([str]).size; } catch (e) {}
-      }
-      var s = str.length;
-      for (var i=str.length-1; i>=0; i--) {
-        var code = str.charCodeAt(i);
-        if (code > 0x7f && code <= 0x7ff) s++;
-        else if (code > 0x7ff && code <= 0xffff) s+=2;
-        if (code >= 0xdc00 && code <= 0xdfff) i--;
-      }
-      return s;
-    }
-  
-    var BackButton = (function() {
-      var isVisible = false;
-  
-      var backButton = {};
-      Object.defineProperty(backButton, 'isVisible', {
-        set: function(val){ setParams({is_visible: val}); },
-        get: function(){ return isVisible; },
-        enumerable: true
-      });
-  
-      var curButtonState = null;
-  
-      WebView.onEvent('back_button_pressed', onBackButtonPressed);
-  
-      function onBackButtonPressed() {
-        receiveWebViewEvent('backButtonClicked');
-      }
-  
-      function buttonParams() {
-        return {is_visible: isVisible};
-      }
-  
-      function buttonState(btn_params) {
-        if (typeof btn_params === 'undefined') {
-          btn_params = buttonParams();
-        }
-        return JSON.stringify(btn_params);
-      }
-  
-      function buttonCheckVersion() {
-        if (!versionAtLeast('6.1')) {
-          console.warn('[Telegram.WebApp] BackButton is not supported in version ' + webAppVersion);
-          return false;
-        }
-        return true;
-      }
-  
-      function updateButton() {
-        var btn_params = buttonParams();
-        var btn_state = buttonState(btn_params);
-        if (curButtonState === btn_state) {
-          return;
-        }
-        curButtonState = btn_state;
-        WebView.postEvent('web_app_setup_back_button', false, btn_params);
-      }
-  
-      function setParams(params) {
-        if (!buttonCheckVersion()) {
-          return backButton;
-        }
-        if (typeof params.is_visible !== 'undefined') {
-          isVisible = !!params.is_visible;
-        }
-        updateButton();
-        return backButton;
-      }
-  
-      backButton.onClick = function(callback) {
-        if (buttonCheckVersion()) {
-          onWebViewEvent('backButtonClicked', callback);
-        }
-        return backButton;
-      };
-      backButton.offClick = function(callback) {
-        if (buttonCheckVersion()) {
-          offWebViewEvent('backButtonClicked', callback);
-        }
-        return backButton;
-      };
-      backButton.show = function() {
-        return setParams({is_visible: true});
-      };
-      backButton.hide = function() {
-        return setParams({is_visible: false});
-      };
-      return backButton;
-    })();
-  
-    var mainButtonHeight = 0;
-    var MainButton = (function() {
-      var isVisible = false;
-      var isActive = true;
-      var isProgressVisible = false;
-      var buttonText = 'CONTINUE';
-      var buttonColor = false;
-      var buttonTextColor = false;
-  
-      var mainButton = {};
-      Object.defineProperty(mainButton, 'text', {
-        set: function(val){ mainButton.setParams({text: val}); },
-        get: function(){ return buttonText; },
-        enumerable: true
-      });
-      Object.defineProperty(mainButton, 'color', {
-        set: function(val){ mainButton.setParams({color: val}); },
-        get: function(){ return buttonColor || themeParams.button_color || '#2481cc'; },
-        enumerable: true
-      });
-      Object.defineProperty(mainButton, 'textColor', {
-        set: function(val){ mainButton.setParams({text_color: val}); },
-        get: function(){ return buttonTextColor || themeParams.button_text_color || '#ffffff'; },
-        enumerable: true
-      });
-      Object.defineProperty(mainButton, 'isVisible', {
-        set: function(val){ mainButton.setParams({is_visible: val}); },
-        get: function(){ return isVisible; },
-        enumerable: true
-      });
-      Object.defineProperty(mainButton, 'isProgressVisible', {
-        get: function(){ return isProgressVisible; },
-        enumerable: true
-      });
-      Object.defineProperty(mainButton, 'isActive', {
-        set: function(val){ mainButton.setParams({is_active: val}); },
-        get: function(){ return isActive; },
-        enumerable: true
-      });
-  
-      var curButtonState = null;
-  
-      WebView.onEvent('main_button_pressed', onMainButtonPressed);
-  
-      var debugBtn = null, debugBtnStyle = {};
-      if (initParams.tgWebAppDebug) {
-        debugBtn = document.createElement('tg-main-button');
-        debugBtnStyle = {
-          font: '600 14px/18px sans-serif',
-          display: 'none',
-          width: '100%',
-          height: '48px',
-          borderRadius: '0',
-          background: 'no-repeat right center',
-          position: 'fixed',
-          left: '0',
-          right: '0',
-          bottom: '0',
-          margin: '0',
-          padding: '15px 20px',
-          textAlign: 'center',
-          boxSizing: 'border-box',
-          zIndex: '10000'
-        };
-        for (var k in debugBtnStyle) {
-          debugBtn.style[k] = debugBtnStyle[k];
-        }
-        document.addEventListener('DOMContentLoaded', function onDomLoaded(event) {
-          document.removeEventListener('DOMContentLoaded', onDomLoaded);
-          document.body.appendChild(debugBtn);
-          debugBtn.addEventListener('click', onMainButtonPressed, false);
-        });
-      }
-  
-      function onMainButtonPressed() {
-        if (isActive) {
-          receiveWebViewEvent('mainButtonClicked');
-        }
-      }
-  
-      function buttonParams() {
-        var color = mainButton.color;
-        var text_color = mainButton.textColor;
-        return isVisible ? {
-          is_visible: true,
-          is_active: isActive,
-          is_progress_visible: isProgressVisible,
-          text: buttonText,
-          color: color,
-          text_color: text_color
-        } : {is_visible: false};
-      }
-  
-      function buttonState(btn_params) {
-        if (typeof btn_params === 'undefined') {
-          btn_params = buttonParams();
-        }
-        return JSON.stringify(btn_params);
-      }
-  
-      function updateButton() {
-        var btn_params = buttonParams();
-        var btn_state = buttonState(btn_params);
-        if (curButtonState === btn_state) {
-          return;
-        }
-        curButtonState = btn_state;
-        WebView.postEvent('web_app_setup_main_button', false, btn_params);
-        if (initParams.tgWebAppDebug) {
-          updateDebugButton(btn_params);
-        }
-      }
-  
-      function updateDebugButton(btn_params) {
-        if (btn_params.is_visible) {
-          debugBtn.style.display = 'block';
-          mainButtonHeight = 48;
-  
-          debugBtn.style.opacity = btn_params.is_active ? '1' : '0.8';
-          debugBtn.style.cursor = btn_params.is_active ? 'pointer' : 'auto';
-          debugBtn.disabled = !btn_params.is_active;
-          debugBtn.innerText = btn_params.text;
-          debugBtn.style.backgroundImage = btn_params.is_progress_visible ? "url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20viewport%3D%220%200%2048%2048%22%20width%3D%2248px%22%20height%3D%2248px%22%3E%3Ccircle%20cx%3D%2250%25%22%20cy%3D%2250%25%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222.25%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%20stroke-dashoffset%3D%22106%22%20r%3D%229%22%20stroke-dasharray%3D%2256.52%22%20rotate%3D%22-90%22%3E%3Canimate%20attributeName%3D%22stroke-dashoffset%22%20attributeType%3D%22XML%22%20dur%3D%22360s%22%20from%3D%220%22%20to%3D%2212500%22%20repeatCount%3D%22indefinite%22%3E%3C%2Fanimate%3E%3CanimateTransform%20attributeName%3D%22transform%22%20attributeType%3D%22XML%22%20type%3D%22rotate%22%20dur%3D%221s%22%20from%3D%22-90%2024%2024%22%20to%3D%22630%2024%2024%22%20repeatCount%3D%22indefinite%22%3E%3C%2FanimateTransform%3E%3C%2Fcircle%3E%3C%2Fsvg%3E')" : 'none';
-          debugBtn.style.backgroundColor = btn_params.color;
-          debugBtn.style.color = btn_params.text_color;
-        } else {
-          debugBtn.style.display = 'none';
-          mainButtonHeight = 0;
-        }
-        if (document.documentElement) {
-          document.documentElement.style.boxSizing = 'border-box';
-          document.documentElement.style.paddingBottom = mainButtonHeight + 'px';
-        }
-        setViewportHeight();
-      }
-  
-      function setParams(params) {
-        if (typeof params.text !== 'undefined') {
-          var text = strTrim(params.text);
-          if (!text.length) {
-            console.error('[Telegram.WebApp] Main button text is required', params.text);
-            throw Error('WebAppMainButtonParamInvalid');
-          }
-          if (text.length > 64) {
-            console.error('[Telegram.WebApp] Main button text is too long', text);
-            throw Error('WebAppMainButtonParamInvalid');
-          }
-          buttonText = text;
-        }
-        if (typeof params.color !== 'undefined') {
-          if (params.color === false ||
-              params.color === null) {
-            buttonColor = false;
-          } else {
-            var color = parseColorToHex(params.color);
-            if (!color) {
-              console.error('[Telegram.WebApp] Main button color format is invalid', params.color);
-              throw Error('WebAppMainButtonParamInvalid');
-            }
-            buttonColor = color;
-          }
-        }
-        if (typeof params.text_color !== 'undefined') {
-          if (params.text_color === false ||
-              params.text_color === null) {
-            buttonTextColor = false;
-          } else {
-            var text_color = parseColorToHex(params.text_color);
-            if (!text_color) {
-              console.error('[Telegram.WebApp] Main button text color format is invalid', params.text_color);
-              throw Error('WebAppMainButtonParamInvalid');
-            }
-            buttonTextColor = text_color;
-          }
-        }
-        if (typeof params.is_visible !== 'undefined') {
-          if (params.is_visible &&
-              !mainButton.text.length) {
-            console.error('[Telegram.WebApp] Main button text is required');
-            throw Error('WebAppMainButtonParamInvalid');
-          }
-          isVisible = !!params.is_visible;
-        }
-        if (typeof params.is_active !== 'undefined') {
-          isActive = !!params.is_active;
-        }
-        updateButton();
-        return mainButton;
-      }
-  
-      mainButton.setText = function(text) {
-        return mainButton.setParams({text: text});
-      };
-      mainButton.onClick = function(callback) {
-        onWebViewEvent('mainButtonClicked', callback);
-        return mainButton;
-      };
-      mainButton.offClick = function(callback) {
-        offWebViewEvent('mainButtonClicked', callback);
-        return mainButton;
-      };
-      mainButton.show = function() {
-        return mainButton.setParams({is_visible: true});
-      };
-      mainButton.hide = function() {
-        return mainButton.setParams({is_visible: false});
-      };
-      mainButton.enable = function() {
-        return mainButton.setParams({is_active: true});
-      };
-      mainButton.disable = function() {
-        return mainButton.setParams({is_active: false});
-      };
-      mainButton.showProgress = function(leaveActive) {
-        isActive = !!leaveActive;
-        isProgressVisible = true;
-        updateButton();
-        return mainButton;
-      };
-      mainButton.hideProgress = function() {
-        if (!mainButton.isActive) {
-          isActive = true;
-        }
-        isProgressVisible = false;
-        updateButton();
-        return mainButton;
-      }
-      mainButton.setParams = setParams;
-      return mainButton;
-    })();
-  
-    function onSettingsButtonPressed() {
-      receiveWebViewEvent('settingsButtonClicked');
-    }
-    WebView.onEvent('settings_button_pressed', onSettingsButtonPressed);
-  
-    var HapticFeedback = (function() {
-      var hapticFeedback = {};
-  
-      function triggerFeedback(params) {
-        if (!versionAtLeast('6.1')) {
-          console.warn('[Telegram.WebApp] HapticFeedback is not supported in version ' + webAppVersion);
-          return hapticFeedback;
-        }
-        if (params.type == 'impact') {
-          if (params.impact_style != 'light' &&
-              params.impact_style != 'medium' &&
-              params.impact_style != 'heavy' &&
-              params.impact_style != 'rigid' &&
-              params.impact_style != 'soft') {
-            console.error('[Telegram.WebApp] Haptic impact style is invalid', params.impact_style);
-            throw Error('WebAppHapticImpactStyleInvalid');
-          }
-        } else if (params.type == 'notification') {
-          if (params.notification_type != 'error' &&
-              params.notification_type != 'success' &&
-              params.notification_type != 'warning') {
-            console.error('[Telegram.WebApp] Haptic notification type is invalid', params.notification_type);
-            throw Error('WebAppHapticNotificationTypeInvalid');
-          }
-        } else if (params.type == 'selection_change') {
-          // no params needed
-        } else {
-          console.error('[Telegram.WebApp] Haptic feedback type is invalid', params.type);
-          throw Error('WebAppHapticFeedbackTypeInvalid');
-        }
-        WebView.postEvent('web_app_trigger_haptic_feedback', false, params);
-        return hapticFeedback;
-      }
-  
-      hapticFeedback.impactOccurred = function(style) {
-        return triggerFeedback({type: 'impact', impact_style: style});
-      };
-      hapticFeedback.notificationOccurred = function(type) {
-        return triggerFeedback({type: 'notification', notification_type: type});
-      };
-      hapticFeedback.selectionChanged = function() {
-        return triggerFeedback({type: 'selection_change'});
-      };
-      return hapticFeedback;
-    })();
-  
-    var webAppInvoices = {};
-    function onInvoiceClosed(eventType, eventData) {
-      if (eventData.slug && webAppInvoices[eventData.slug]) {
-        var invoiceData = webAppInvoices[eventData.slug];
-        delete webAppInvoices[eventData.slug];
-        if (invoiceData.callback) {
-          invoiceData.callback(eventData.status);
-        }
-        receiveWebViewEvent('invoiceClosed', {
-          url: invoiceData.url,
-          status: eventData.status
-        });
-      }
-    }
-  
-    var webAppPopupOpened = false;
-    function onPopupClosed(eventType, eventData) {
-      if (webAppPopupOpened) {
-        var popupData = webAppPopupOpened;
-        webAppPopupOpened = false;
-        var button_id = null;
-        if (typeof eventData.button_id !== 'undefined') {
-          button_id = eventData.button_id;
-        }
-        if (popupData.callback) {
-          popupData.callback(button_id);
-        }
-        receiveWebViewEvent('popupClosed', {
-          button_id: button_id
-        });
-      }
-    }
-  
-    if (!window.Telegram) {
-      window.Telegram = {};
-    }
-  
-    Object.defineProperty(WebApp, 'initData', {
-      get: function(){ return webAppInitData; },
-      enumerable: true
-    });
-    Object.defineProperty(WebApp, 'initDataUnsafe', {
-      get: function(){ return webAppInitDataUnsafe; },
-      enumerable: true
-    });
-    Object.defineProperty(WebApp, 'version', {
-      get: function(){ return webAppVersion; },
-      enumerable: true
-    });
-    Object.defineProperty(WebApp, 'platform', {
-      get: function(){ return webAppPlatform; },
-      enumerable: true
-    });
-    Object.defineProperty(WebApp, 'colorScheme', {
-      get: function(){ return colorScheme; },
-      enumerable: true
-    });
-    Object.defineProperty(WebApp, 'themeParams', {
-      get: function(){ return themeParams; },
-      enumerable: true
-    });
-    Object.defineProperty(WebApp, 'isExpanded', {
-      get: function(){ return isExpanded; },
-      enumerable: true
-    });
-    Object.defineProperty(WebApp, 'viewportHeight', {
-      get: function(){ return (viewportHeight === false ? window.innerHeight : viewportHeight) - mainButtonHeight; },
-      enumerable: true
-    });
-    Object.defineProperty(WebApp, 'viewportStableHeight', {
-      get: function(){ return (viewportStableHeight === false ? window.innerHeight : viewportStableHeight) - mainButtonHeight; },
-      enumerable: true
-    });
-    Object.defineProperty(WebApp, 'isClosingConfirmationEnabled', {
-      set: function(val){ setClosingConfirmation(val); },
-      get: function(){ return isClosingConfirmationEnabled; },
-      enumerable: true
-    });
-    Object.defineProperty(WebApp, 'headerColor', {
-      set: function(val){ setHeaderColor(val); },
-      get: function(){ return getHeaderColor(); },
-      enumerable: true
-    });
-    Object.defineProperty(WebApp, 'backgroundColor', {
-      set: function(val){ setBackgroundColor(val); },
-      get: function(){ return getBackgroundColor(); },
-      enumerable: true
-    });
-    Object.defineProperty(WebApp, 'BackButton', {
-      value: BackButton,
-      enumerable: true
-    });
-    Object.defineProperty(WebApp, 'MainButton', {
-      value: MainButton,
-      enumerable: true
-    });
-    Object.defineProperty(WebApp, 'HapticFeedback', {
-      value: HapticFeedback,
-      enumerable: true
-    });
-    WebApp.setHeaderColor = function(color_key) {
-      WebApp.headerColor = color_key;
-    };
-    WebApp.setBackgroundColor = function(color) {
-      WebApp.backgroundColor = color;
-    };
-    WebApp.enableClosingConfirmation = function() {
-      WebApp.isClosingConfirmationEnabled = true;
-    };
-    WebApp.disableClosingConfirmation = function() {
-      WebApp.isClosingConfirmationEnabled = false;
-    };
-    WebApp.isVersionAtLeast = function(ver) {
-      return versionAtLeast(ver);
-    };
-    WebApp.onEvent = function(eventType, callback) {
-      onWebViewEvent(eventType, callback);
-    };
-    WebApp.offEvent = function(eventType, callback) {offWebViewEvent(eventType, callback);
-    };
-    WebApp.sendData = function (data) {
-      if (!data || !data.length) {
-        console.error('[Telegram.WebApp] Data is required', data);
-        throw Error('WebAppDataInvalid');
-      }
-      if (byteLength(data) > 4096) {
-        console.error('[Telegram.WebApp] Data is too long', data);
-        throw Error('WebAppDataInvalid');
-      }
-      WebView.postEvent('web_app_data_send', false, {data: data});
-    };
-    WebApp.openLink = function (url) {
-      var a = document.createElement('A');
-      a.href = url;
-      if (a.protocol != 'http:' &&
-          a.protocol != 'https:') {
-        console.error('[Telegram.WebApp] Url protocol is not supported', url);
-        throw Error('WebAppTgUrlInvalid');
-      }
-      var url = a.href;
-      if (versionAtLeast('6.1')) {
-        WebView.postEvent('web_app_open_link', false, {url: url});
-      } else {
-        window.open(url, '_blank');
-      }
-    };
-    WebApp.openTelegramLink = function (url) {
-      var a = document.createElement('A');
-      a.href = url;
-      if (a.protocol != 'http:' &&
-          a.protocol != 'https:') {
-        console.error('[Telegram.WebApp] Url protocol is not supported', url);
-        throw Error('WebAppTgUrlInvalid');
-      }
-      if (a.hostname != 't.me') {
-        console.error('[Telegram.WebApp] Url host is not supported', url);
-        throw Error('WebAppTgUrlInvalid');
-      }
-      var path_full = a.pathname + a.search;
-      if (isIframe || versionAtLeast('6.1')) {
-        WebView.postEvent('web_app_open_tg_link', false, {path_full: path_full});
-      } else {
-        location.href = 'https://t.me' + path_full;
-      }
-    };
-    WebApp.openInvoice = function (url, callback) {
-      var a = document.createElement('A'), match, slug;
-      a.href = url;
-      if (a.protocol != 'http:' &&
-          a.protocol != 'https:' ||
-          a.hostname != 't.me' ||
-          !(match = a.pathname.match(/^\/(\$|invoice\/)([A-Za-z0-9\-_=]+)$/)) ||
-          !(slug = match[2])) {
-        console.error('[Telegram.WebApp] Invoice url is invalid', url);
-        throw Error('WebAppInvoiceUrlInvalid');
-      }
-      if (!versionAtLeast('6.1')) {
-        console.error('[Telegram.WebApp] Method openInvoice is not supported in version ' + webAppVersion);
-        throw Error('WebAppMethodUnsupported');
-      }
-      if (webAppInvoices[slug]) {
-        console.error('[Telegram.WebApp] Invoice is already opened');
-        throw Error('WebAppInvoiceOpened');
-      }
-      webAppInvoices[slug] = {
-        url: url,
-        callback: callback
-      };
-      WebView.postEvent('web_app_open_invoice', false, {slug: slug});
-    };
-    WebApp.showPopup = function (params, callback) {
-      if (!versionAtLeast('6.2')) {
-        console.error('[Telegram.WebApp] Method showPopup is not supported in version ' + webAppVersion);
-        throw Error('WebAppMethodUnsupported');
-      }
-      if (webAppPopupOpened) {
-        console.error('[Telegram.WebApp] Popup is already opened');
-        throw Error('WebAppPopupOpened');
-      }
-      var title = '';
-      var message = '';
-      var buttons = [];
-      var popup_buttons = {};
-      var popup_params = {};
-      if (typeof params.title !== 'undefined') {
-        title = strTrim(params.title);
-        if (title.length > 64) {
-          console.error('[Telegram.WebApp] Popup title is too long', title);
-          throw Error('WebAppPopupParamInvalid');
-        }
-        if (title.length > 0) {
-          popup_params.title = title;
-        }
-      }
-      if (typeof params.message !== 'undefined') {
-        message = strTrim(params.message);
-      }
-      if (!message.length) {
-        console.error('[Telegram.WebApp] Popup message is required', params.message);
-        throw Error('WebAppPopupParamInvalid');
-      }
-      if (message.length > 256) {
-        console.error('[Telegram.WebApp] Popup message is too long', message);
-        throw Error('WebAppPopupParamInvalid');
-      }
-      popup_params.message = message;
-      if (typeof params.buttons !== 'undefined') {
-        if (!Array.isArray(params.buttons)) {
-          console.error('[Telegram.WebApp] Popup buttons should be an array', params.buttons);
-          throw Error('WebAppPopupParamInvalid');
-        }
-        for (var i = 0; i < params.buttons.length; i++) {
-          var button = params.buttons[i];
-          var btn = {};
-          var id = '';
-          if (typeof button.id !== 'undefined') {
-            id = button.id.toString();
-            if (id.length > 64) {
-              console.error('[Telegram.WebApp] Popup button id is too long', id);
-              throw Error('WebAppPopupParamInvalid');
-            }
-          }
-          btn.id = id;
-          var button_type = button.type;
-          if (typeof button_type === 'undefined') {
-            button_type = 'default';
-          }
-          btn.type = button_type;
-          if (button_type == 'ok' ||
-              button_type == 'close' ||
-              button_type == 'cancel') {
-            // no params needed
-          } else if (button_type == 'default' ||
-                     button_type == 'destructive') {
-            var text = '';
-            if (typeof button.text !== 'undefined') {
-              text = strTrim(button.text);
-            }
-            if (!text.length) {
-              console.error('[Telegram.WebApp] Popup button text is required for type ' + button_type, button.text);
-              throw Error('WebAppPopupParamInvalid');
-            }
-            if (text.length > 64) {
-              console.error('[Telegram.WebApp] Popup button text is too long', text);
-              throw Error('WebAppPopupParamInvalid');
-            }
-            btn.text = text;
-          } else {
-            console.error('[Telegram.WebApp] Popup button type is invalid', button_type);
-            throw Error('WebAppPopupParamInvalid');
-          }
-          buttons.push(btn);
-        }
-      } else {
-        buttons.push({id: '', type: 'close'});
-      }
-      if (buttons.length < 1) {
-        console.error('[Telegram.WebApp] Popup should have at least one button');
-        throw Error('WebAppPopupParamInvalid');
-      }
-      if (buttons.length > 3) {
-        console.error('[Telegram.WebApp] Popup should not have more than 3 buttons');
-        throw Error('WebAppPopupParamInvalid');
-      }
-      popup_params.buttons = buttons;
-  
-      webAppPopupOpened = {
-        callback: callback
-      };
-      WebView.postEvent('web_app_open_popup', false, popup_params);
-    };
-    WebApp.showAlert = function (message, callback) {
-      WebApp.showPopup({
-        message: message
-      }, callback ? function(){ callback(); } : null);
-    };
-    WebApp.showConfirm = function (message, callback) {
-      WebApp.showPopup({
-        message: message,
-        buttons: [
-          {type: 'ok', id: 'ok'},
-          {type: 'cancel'}
-        ]
-      }, callback ? function (button_id) {
-        callback(button_id == 'ok');
-      } : null);
-    };
-    WebApp.ready = function () {
-      WebView.postEvent('web_app_ready');
-    };
-    WebApp.expand = function () {
-      WebView.postEvent('web_app_expand');
-    };
-    WebApp.close = function () {
-      WebView.postEvent('web_app_close');
-    };
-  
-    window.Telegram.WebApp = WebApp;
-  
-    updateBackgroundColor();
-    setViewportHeight();
-  
-    window.addEventListener('resize', onWindowResize);
-    if (isIframe) {
-      document.addEventListener('click', linkHandler);
-    }
-  
-    WebView.onEvent('theme_changed', onThemeChanged);
-    WebView.onEvent('viewport_changed', onViewportChanged);
-    WebView.onEvent('invoice_closed', onInvoiceClosed);
-    WebView.onEvent('popup_closed', onPopupClosed);
-    WebView.postEvent('web_app_request_theme');
-    WebView.postEvent('web_app_request_viewport');
-  
-  })();
+! function(t, e) {
+	"object" == typeof exports && "undefined" != typeof module ? e(exports) : "function" == typeof define && define.amd ? define(["exports"], e) : e((t = "undefined" != typeof globalThis ? globalThis : t || self).easepick = t.easepick || {})
+}(this, (function(t) {
+	"use strict";
+	class e extends Date {
+		static parseDateTime(t, i = "YYYY-MM-DD", n = "en-US") {
+			if(!t) return new Date((new Date).setHours(0, 0, 0, 0));
+			if(t instanceof e) return t.toJSDate();
+			if(t instanceof Date) return t;
+			if(/^-?\d{10,}$/.test(String(t))) return new Date(Number(t));
+			if("string" == typeof t) {
+				const s = [];
+				let o = null;
+				for(; null != (o = e.regex.exec(i));) "\\" !== o[1] && s.push(o);
+				if(s.length) {
+					const i = {
+						year: null,
+						month: null,
+						shortMonth: null,
+						longMonth: null,
+						day: null,
+						hour: 0,
+						minute: 0,
+						second: 0,
+						ampm: null,
+						value: ""
+					};
+					s[0].index > 0 && (i.value += ".*?");
+					for(const [t, o] of Object.entries(s)) {
+						const s = Number(t),
+							{
+								group: a,
+								pattern: r
+							} = e.formatPatterns(o[0], n);
+						i[a] = s + 1, i.value += r, i.value += ".*?"
+					}
+					const o = new RegExp(`^${i.value}$`);
+					if(o.test(t)) {
+						const s = o.exec(t),
+							a = Number(s[i.year]);
+						let r = null;
+						i.month ? r = Number(s[i.month]) - 1 : i.shortMonth ? r = e.shortMonths(n).indexOf(s[i.shortMonth]) : i.longMonth && (r = e.longMonths(n).indexOf(s[i.longMonth]));
+						const c = Number(s[i.day]) || 1,
+							l = Number(s[i.hour]);
+						let h = Number.isNaN(l) ? 0 : l;
+						const d = Number(s[i.minute]),
+							p = Number.isNaN(d) ? 0 : d,
+							u = Number(s[i.second]),
+							g = Number.isNaN(u) ? 0 : u,
+							m = s[i.ampm];
+						return m && "PM" === m && (h += 12, 24 === h && (h = 0)), new Date(a, r, c, h, p, g, 0)
+					}
+				}
+			}
+			return new Date((new Date).setHours(0, 0, 0, 0))
+		}
+		static regex = /(\\)?(Y{2,4}|M{1,4}|D{1,2}|H{1,2}|h{1,2}|m{1,2}|s{1,2}|A|a)/g;
+		static MONTH_JS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+		static shortMonths(t) {
+			return e.MONTH_JS.map((e => new Date(2019, e).toLocaleString(t, {
+				month: "short"
+			})))
+		}
+		static longMonths(t) {
+			return e.MONTH_JS.map((e => new Date(2019, e).toLocaleString(t, {
+				month: "long"
+			})))
+		}
+		static formatPatterns(t, i) {
+			switch(t) {
+				case "YY":
+				case "YYYY":
+					return {
+						group: "year",
+						pattern: `(\\d{${t.length}})`
+					};
+				case "M":
+					return {
+						group: "month",
+						pattern: "(\\d{1,2})"
+					};
+				case "MM":
+					return {
+						group: "month",
+						pattern: "(\\d{2})"
+					};
+				case "MMM":
+					return {
+						group: "shortMonth",
+						pattern: `(${e.shortMonths(i).join("|")})`
+					};
+				case "MMMM":
+					return {
+						group: "longMonth",
+						pattern: `(${e.longMonths(i).join("|")})`
+					};
+				case "D":
+					return {
+						group: "day",
+						pattern: "(\\d{1,2})"
+					};
+				case "DD":
+					return {
+						group: "day",
+						pattern: "(\\d{2})"
+					};
+				case "h":
+				case "H":
+					return {
+						group: "hour",
+						pattern: "(\\d{1,2})"
+					};
+				case "hh":
+				case "HH":
+					return {
+						group: "hour",
+						pattern: "(\\d{2})"
+					};
+				case "m":
+					return {
+						group: "minute",
+						pattern: "(\\d{1,2})"
+					};
+				case "mm":
+					return {
+						group: "minute",
+						pattern: "(\\d{2})"
+					};
+				case "s":
+					return {
+						group: "second",
+						pattern: "(\\d{1,2})"
+					};
+				case "ss":
+					return {
+						group: "second",
+						pattern: "(\\d{2})"
+					};
+				case "a":
+				case "A":
+					return {
+						group: "ampm",
+						pattern: "(AM|PM|am|pm)"
+					}
+			}
+		}
+		lang;
+		constructor(t = null, i = "YYYY-MM-DD", n = "en-US") {
+			super(e.parseDateTime(t, i, n)), this.lang = n
+		}
+		getWeek(t) {
+			const e = new Date(this.midnight_ts(this)),
+				i = (this.getDay() + (7 - t)) % 7;
+			e.setDate(e.getDate() - i);
+			const n = e.getTime();
+			return e.setMonth(0, 1), e.getDay() !== t && e.setMonth(0, 1 + (4 - e.getDay() + 7) % 7), 1 + Math.ceil((n - e.getTime()) / 6048e5)
+		}
+		clone() {
+			return new e(this)
+		}
+		toJSDate() {
+			return new Date(this)
+		}
+		inArray(t, e = "[]") {
+			return t.some((t => t instanceof Array ? this.isBetween(t[0], t[1], e) : this.isSame(t, "day")))
+		}
+		isBetween(t, e, i = "()") {
+			switch(i) {
+				default:
+					case "()":
+					return this.midnight_ts(this) > this.midnight_ts(t) && this.midnight_ts(this) < this.midnight_ts(e);
+				case "[)":
+						return this.midnight_ts(this) >= this.midnight_ts(t) && this.midnight_ts(this) < this.midnight_ts(e);
+				case "(]":
+						return this.midnight_ts(this) > this.midnight_ts(t) && this.midnight_ts(this) <= this.midnight_ts(e);
+				case "[]":
+						return this.midnight_ts() >= this.midnight_ts(t) && this.midnight_ts() <= this.midnight_ts(e)
+			}
+		}
+		isBefore(t, e = "days") {
+			switch(e) {
+				case "day":
+				case "days":
+					return new Date(t.getFullYear(), t.getMonth(), t.getDate()).getTime() > new Date(this.getFullYear(), this.getMonth(), this.getDate()).getTime();
+				case "month":
+				case "months":
+					return new Date(t.getFullYear(), t.getMonth(), 1).getTime() > new Date(this.getFullYear(), this.getMonth(), 1).getTime();
+				case "year":
+				case "years":
+					return t.getFullYear() > this.getFullYear()
+			}
+			throw new Error("isBefore: Invalid unit!")
+		}
+		isSameOrBefore(t, e = "days") {
+			switch(e) {
+				case "day":
+				case "days":
+					return new Date(t.getFullYear(), t.getMonth(), t.getDate()).getTime() >= new Date(this.getFullYear(), this.getMonth(), this.getDate()).getTime();
+				case "month":
+				case "months":
+					return new Date(t.getFullYear(), t.getMonth(), 1).getTime() >= new Date(this.getFullYear(), this.getMonth(), 1).getTime()
+			}
+			throw new Error("isSameOrBefore: Invalid unit!")
+		}
+		isAfter(t, e = "days") {
+			switch(e) {
+				case "day":
+				case "days":
+					return new Date(this.getFullYear(), this.getMonth(), this.getDate()).getTime() > new Date(t.getFullYear(), t.getMonth(), t.getDate()).getTime();
+				case "month":
+				case "months":
+					return new Date(this.getFullYear(), this.getMonth(), 1).getTime() > new Date(t.getFullYear(), t.getMonth(), 1).getTime();
+				case "year":
+				case "years":
+					return this.getFullYear() > t.getFullYear()
+			}
+			throw new Error("isAfter: Invalid unit!")
+		}
+		isSameOrAfter(t, e = "days") {
+			switch(e) {
+				case "day":
+				case "days":
+					return new Date(this.getFullYear(), this.getMonth(), this.getDate()).getTime() >= new Date(t.getFullYear(), t.getMonth(), t.getDate()).getTime();
+				case "month":
+				case "months":
+					return new Date(this.getFullYear(), this.getMonth(), 1).getTime() >= new Date(t.getFullYear(), t.getMonth(), 1).getTime()
+			}
+			throw new Error("isSameOrAfter: Invalid unit!")
+		}
+		isSame(t, e = "days") {
+			switch(e) {
+				case "day":
+				case "days":
+					return new Date(this.getFullYear(), this.getMonth(), this.getDate()).getTime() === new Date(t.getFullYear(), t.getMonth(), t.getDate()).getTime();
+				case "month":
+				case "months":
+					return new Date(this.getFullYear(), this.getMonth(), 1).getTime() === new Date(t.getFullYear(), t.getMonth(), 1).getTime()
+			}
+			throw new Error("isSame: Invalid unit!")
+		}
+		add(t, e = "days") {
+			switch(e) {
+				case "day":
+				case "days":
+					this.setDate(this.getDate() + t);
+					break;
+				case "month":
+				case "months":
+					this.setMonth(this.getMonth() + t)
+			}
+			return this
+		}
+		subtract(t, e = "days") {
+			switch(e) {
+				case "day":
+				case "days":
+					this.setDate(this.getDate() - t);
+					break;
+				case "month":
+				case "months":
+					this.setMonth(this.getMonth() - t)
+			}
+			return this
+		}
+		diff(t, e = "days") {
+			switch(e) {
+				default:
+					case "day":
+					case "days":
+					return Math.round((this.midnight_ts() - this.midnight_ts(t)) / 864e5);
+				case "month":
+						case "months":
+						let e = 12 * (t.getFullYear() - this.getFullYear());
+					return e -= t.getMonth(),
+					e += this.getMonth(),
+					e
+			}
+		}
+		format(t, i = "en-US") {
+			let n = "";
+			const s = [];
+			let o = null;
+			for(; null != (o = e.regex.exec(t));) "\\" !== o[1] && s.push(o);
+			if(s.length) {
+				s[0].index > 0 && (n += t.substring(0, s[0].index));
+				for(const [e, o] of Object.entries(s)) {
+					const a = Number(e);
+					n += this.formatTokens(o[0], i), s[a + 1] && (n += t.substring(o.index + o[0].length, s[a + 1].index)), a === s.length - 1 && (n += t.substring(o.index + o[0].length))
+				}
+			}
+			return n.replace(/\\/g, "")
+		}
+		midnight_ts(t) {
+			return t ? new Date(t.getFullYear(), t.getMonth(), t.getDate(), 0, 0, 0, 0).getTime() : new Date(this.getFullYear(), this.getMonth(), this.getDate(), 0, 0, 0, 0).getTime()
+		}
+		formatTokens(t, i) {
+			switch(t) {
+				case "YY":
+					return String(this.getFullYear()).slice(-2);
+				case "YYYY":
+					return String(this.getFullYear());
+				case "M":
+					return String(this.getMonth() + 1);
+				case "MM":
+					return `0${this.getMonth()+1}`.slice(-2);
+				case "MMM":
+					return e.shortMonths(i)[this.getMonth()];
+				case "MMMM":
+					return e.longMonths(i)[this.getMonth()];
+				case "D":
+					return String(this.getDate());
+				case "DD":
+					return `0${this.getDate()}`.slice(-2);
+				case "H":
+					return String(this.getHours());
+				case "HH":
+					return `0${this.getHours()}`.slice(-2);
+				case "h":
+					return String(this.getHours() % 12 || 12);
+				case "hh":
+					return `0${this.getHours()%12||12}`.slice(-2);
+				case "m":
+					return String(this.getMinutes());
+				case "mm":
+					return `0${this.getMinutes()}`.slice(-2);
+				case "s":
+					return String(this.getSeconds());
+				case "ss":
+					return `0${this.getSeconds()}`.slice(-2);
+				case "a":
+					return this.getHours() < 12 || 24 === this.getHours() ? "am" : "pm";
+				case "A":
+					return this.getHours() < 12 || 24 === this.getHours() ? "AM" : "PM";
+				default:
+					return ""
+			}
+		}
+	}
+	class i {
+		picker;
+		constructor(t) {
+			this.picker = t
+		}
+		render(t, i) {
+			t || (t = new e), t.setDate(1), t.setHours(0, 0, 0, 0), "function" == typeof this[`get${i}View`] && this[`get${i}View`](t)
+		}
+		getContainerView(t) {
+			this.picker.ui.container.innerHTML = "", this.picker.options.header && this.picker.trigger("render", {
+				date: t.clone(),
+				view: "Header"
+			}), this.picker.trigger("render", {
+				date: t.clone(),
+				view: "Main"
+			}), this.picker.options.autoApply || this.picker.trigger("render", {
+				date: t.clone(),
+				view: "Footer"
+			})
+		}
+		getHeaderView(t) {
+			const e = document.createElement("header");
+			this.picker.options.header instanceof HTMLElement && e.appendChild(this.picker.options.header), "string" == typeof this.picker.options.header && (e.innerHTML = this.picker.options.header), this.picker.ui.container.appendChild(e), this.picker.trigger("view", {
+				target: e,
+				date: t.clone(),
+				view: "Header"
+			})
+		}
+		getMainView(t) {
+			const e = document.createElement("main");
+			this.picker.ui.container.appendChild(e);
+			const i = document.createElement("div");
+			i.className = `calendars grid-${this.picker.options.grid}`;
+			for(let e = 0; e < this.picker.options.calendars; e++) {
+				const n = document.createElement("div");
+				n.className = "calendar", i.appendChild(n);
+				const s = this.getCalendarHeaderView(t.clone());
+				n.appendChild(s), this.picker.trigger("view", {
+					date: t.clone(),
+					view: "CalendarHeader",
+					index: e,
+					target: s
+				});
+				const o = this.getCalendarDayNamesView();
+				n.appendChild(o), this.picker.trigger("view", {
+					date: t.clone(),
+					view: "CalendarDayNames",
+					index: e,
+					target: o
+				});
+				const a = this.getCalendarDaysView(t.clone());
+				n.appendChild(a), this.picker.trigger("view", {
+					date: t.clone(),
+					view: "CalendarDays",
+					index: e,
+					target: a
+				});
+				const r = this.getCalendarFooterView(this.picker.options.lang, t.clone());
+				n.appendChild(r), this.picker.trigger("view", {
+					date: t.clone(),
+					view: "CalendarFooter",
+					index: e,
+					target: r
+				}), this.picker.trigger("view", {
+					date: t.clone(),
+					view: "CalendarItem",
+					index: e,
+					target: n
+				}), t.add(1, "month")
+			}
+			e.appendChild(i), this.picker.trigger("view", {
+				date: t.clone(),
+				view: "Calendars",
+				target: i
+			}), this.picker.trigger("view", {
+				date: t.clone(),
+				view: "Main",
+				target: e
+			})
+		}
+		getFooterView(t) {
+			const e = document.createElement("footer"),
+				i = document.createElement("div");
+			i.className = "footer-buttons";
+			const n = document.createElement("button");
+			n.className = "cancel-button unit", n.innerHTML = this.picker.options.locale.cancel, i.appendChild(n);
+			const s = document.createElement("button");
+			s.className = "apply-button unit", s.innerHTML = this.picker.options.locale.apply, s.disabled = !0, i.appendChild(s), e.appendChild(i), this.picker.ui.container.appendChild(e), this.picker.trigger("view", {
+				date: t,
+				target: e,
+				view: "Footer"
+			})
+		}
+		getCalendarHeaderView(t) {
+			const e = document.createElement("div");
+			e.className = "header";
+			const i = document.createElement("div");
+			i.className = "month-name", i.innerHTML = `<span>${t.toLocaleString(this.picker.options.lang,{month:"long"})}</span> ${t.format("YYYY")}`, e.appendChild(i);
+			const n = document.createElement("button");
+			n.className = "previous-button unit", n.innerHTML = this.picker.options.locale.previousMonth, e.appendChild(n);
+			const s = document.createElement("button");
+			return s.className = "next-button unit", s.innerHTML = this.picker.options.locale.nextMonth, e.appendChild(s), e
+		}
+		getCalendarDayNamesView() {
+			const t = document.createElement("div");
+			t.className = "daynames-row";
+			for(let e = 1; e <= 7; e++) {
+				const i = 3 + this.picker.options.firstDay + e,
+					n = document.createElement("div");
+				n.className = "dayname", n.innerHTML = new Date(1970, 0, i, 12, 0, 0, 0).toLocaleString(this.picker.options.lang, {
+					weekday: "short"
+				}), n.title = new Date(1970, 0, i, 12, 0, 0, 0).toLocaleString(this.picker.options.lang, {
+					weekday: "long"
+				}), t.appendChild(n), this.picker.trigger("view", {
+					dayIdx: i,
+					view: "CalendarDayName",
+					target: n
+				})
+			}
+			return t
+		}
+		getCalendarDaysView(t) {
+			const e = document.createElement("div");
+			e.className = "days-grid";
+			const i = this.calcOffsetDays(t, this.picker.options.firstDay),
+				n = 32 - new Date(t.getFullYear(), t.getMonth(), 32).getDate();
+			for(let t = 0; t < i; t++) {
+				const t = document.createElement("div");
+				t.className = "offset", e.appendChild(t)
+			}
+			for(let i = 1; i <= n; i++) {
+				t.setDate(i);
+				const n = this.getCalendarDayView(t);
+				e.appendChild(n), this.picker.trigger("view", {
+					date: t,
+					view: "CalendarDay",
+					target: n
+				})
+			}
+			return e
+		}
+		getCalendarDayView(t) {
+			const i = this.picker.options.date ? new e(this.picker.options.date) : null,
+				n = new e,
+				s = document.createElement("div");
+			return s.className = "day unit", s.innerHTML = t.format("D"), s.dataset.time = String(t.getTime()), t.isSame(n, "day") && s.classList.add("today"), [0, 6].includes(t.getDay()) && s.classList.add("weekend"), this.picker.datePicked.length ? this.picker.datePicked[0].isSame(t, "day") && s.classList.add("selected") : i && t.isSame(i, "day") && s.classList.add("selected"), this.picker.trigger("view", {
+				date: t,
+				view: "CalendarDay",
+				target: s
+			}), s
+		}
+		getCalendarFooterView(t, e) {
+			const i = document.createElement("div");
+			return i.className = "footer", i
+		}
+		calcOffsetDays(t, e) {
+			let i = t.getDay() - e;
+			return i < 0 && (i += 7), i
+		}
+	}
+	class n {
+		picker;
+		instances = {};
+		constructor(t) {
+			this.picker = t
+		}
+		initialize() {
+			const t = [];
+			this.picker.options.plugins.forEach((e => {
+				"function" == typeof e ? t.push(new e) : "string" == typeof e && "undefined" != typeof easepick && Object.prototype.hasOwnProperty.call(easepick, e) ? t.push(new easepick[e]) : console.warn(`easepick: ${e} not found.`)
+			})), t.sort(((t, e) => t.priority > e.priority ? -1 : t.priority < e.priority || t.dependencies.length > e.dependencies.length ? 1 : t.dependencies.length < e.dependencies.length ? -1 : 0)), t.forEach((t => {
+				t.attach(this.picker),
+				this.instances[t.getName()] = t
+			}))
+		}
+		getInstance(t) {
+			return this.instances[t]
+		}
+		addInstance(t) {
+			if(Object.prototype.hasOwnProperty.call(this.instances, t)) console.warn(`easepick: ${t} already added.`);
+			else {
+				if("undefined" != typeof easepick && Object.prototype.hasOwnProperty.call(easepick, t)) {
+					const e = new easepick[t];
+					return e.attach(this.picker), this.instances[e.getName()] = e, e
+				}
+				if("undefined" !== this.getPluginFn(t)) {
+					const e = new(this.getPluginFn(t));
+					return e.attach(this.picker), this.instances[e.getName()] = e, e
+				}
+				console.warn(`easepick: ${t} not found.`)
+			}
+			return null
+		}
+		removeInstance(t) {
+			return t in this.instances && this.instances[t].detach(), delete this.instances[t]
+		}
+		reloadInstance(t) {
+			return this.removeInstance(t), this.addInstance(t)
+		}
+		getPluginFn(t) {
+			return [...this.picker.options.plugins].filter((e => "function" == typeof e && (new e).getName() === t)).shift()
+		}
+	}
+	class s {
+		Calendar = new i(this);
+		PluginManager = new n(this);
+		calendars = [];
+		datePicked = [];
+		cssLoaded = 0;
+		binds = {
+			hidePicker: this.hidePicker.bind(this),
+			show: this.show.bind(this)
+		};
+		options = {
+			doc: document,
+			css: [],
+			element: null,
+			firstDay: 1,
+			grid: 1,
+			calendars: 1,
+			lang: "en-US",
+			date: null,
+			format: "YYYY-MM-DD",
+			readonly: !0,
+			autoApply: !0,
+			header: !1,
+			inline: !1,
+			scrollToDate: !0,
+			locale: {
+				nextMonth: '<svg width="11" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M2.748 16L0 13.333 5.333 8 0 2.667 2.748 0l7.919 8z" fill-rule="nonzero"/></svg>',
+				previousMonth: '<svg width="11" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M7.919 0l2.748 2.667L5.333 8l5.334 5.333L7.919 16 0 8z" fill-rule="nonzero"/></svg>',
+				cancel: "Cancel",
+				apply: "Apply"
+			},
+			documentClick: this.binds.hidePicker,
+			plugins: []
+		};
+		ui = {
+			container: null,
+			shadowRoot: null,
+			wrapper: null
+		};
+		version = "1.2.0";
+		constructor(t) {
+			const e = {...this.options.locale,
+				...t.locale
+			};
+			this.options = {...this.options,
+				...t
+			}, this.options.locale = e, this.handleOptions(), this.ui.wrapper = document.createElement("span"), this.ui.wrapper.style.display = "none", this.ui.wrapper.style.position = "absolute", this.ui.wrapper.style.pointerEvents = "none", this.ui.wrapper.className = "easepick-wrapper", this.ui.wrapper.attachShadow({
+				mode: "open"
+			}), this.ui.shadowRoot = this.ui.wrapper.shadowRoot, this.ui.container = document.createElement("div"), this.ui.container.className = "container", this.options.zIndex && (this.ui.container.style.zIndex = String(this.options.zIndex)), this.options.inline && (this.ui.wrapper.style.position = "relative", this.ui.container.classList.add("inline")), this.ui.shadowRoot.appendChild(this.ui.container), this.options.element.after(this.ui.wrapper), this.handleCSS(), this.options.element.addEventListener("click", this.binds.show), this.on("view", this.onView.bind(this)), this.on("render", this.onRender.bind(this)), this.PluginManager.initialize(), this.parseValues(), "function" == typeof this.options.setup && this.options.setup(this), this.on("click", this.onClick.bind(this));
+			const i = this.options.scrollToDate ? this.getDate() : null;
+			this.renderAll(i)
+		}
+		on(t, e, i = {}) {
+			this.ui.container.addEventListener(t, e, i)
+		}
+		off(t, e, i = {}) {
+			this.ui.container.removeEventListener(t, e, i)
+		}
+		trigger(t, e = {}) {
+			return this.ui.container.dispatchEvent(new CustomEvent(t, {
+				detail: e
+			}))
+		}
+		destroy() {
+			this.options.element.removeEventListener("click", this.binds.show), "function" == typeof this.options.documentClick && document.removeEventListener("click", this.options.documentClick, !0), Object.keys(this.PluginManager.instances).forEach((t => {
+				this.PluginManager.removeInstance(t)
+			})), this.ui.wrapper.remove()
+		}
+		onRender(t) {
+			const {
+				view: e,
+				date: i
+			} = t.detail;
+			this.Calendar.render(i, e)
+		}
+		onView(t) {
+			const {
+				view: e,
+				target: i
+			} = t.detail;
+			"Footer" === e && this.datePicked.length && (i.querySelector(".apply-button").disabled = !1)
+		}
+		onClickHeaderButton(t) {
+			this.isCalendarHeaderButton(t) && (t.classList.contains("next-button") ? this.calendars[0].add(1, "month") : this.calendars[0].subtract(1, "month"), this.renderAll(this.calendars[0]))
+		}
+		onClickCalendarDay(t) {
+			if(this.isCalendarDay(t)) {
+				const i = new e(t.dataset.time);
+				this.options.autoApply ? (this.setDate(i), this.trigger("select", {
+					date: this.getDate()
+				}), this.hide()) : (this.datePicked[0] = i, this.trigger("preselect", {
+					date: this.getDate()
+				}), this.renderAll())
+			}
+		}
+		onClickApplyButton(t) {
+			if(this.isApplyButton(t)) {
+				if(this.datePicked[0] instanceof Date) {
+					const t = this.datePicked[0].clone();
+					this.setDate(t)
+				}
+				this.hide(), this.trigger("select", {
+					date: this.getDate()
+				})
+			}
+		}
+		onClickCancelButton(t) {
+			this.isCancelButton(t) && this.hide()
+		}
+		onClick(t) {
+			const e = t.target;
+			if(e instanceof HTMLElement) {
+				const t = e.closest(".unit");
+				if(!(t instanceof HTMLElement)) return;
+				this.onClickHeaderButton(t), this.onClickCalendarDay(t), this.onClickApplyButton(t), this.onClickCancelButton(t)
+			}
+		}
+		isShown() {
+			return this.ui.container.classList.contains("inline") || this.ui.container.classList.contains("show")
+		}
+		show(t) {
+			if(this.isShown()) return;
+			const e = t && "target" in t ? t.target : this.options.element,
+				{
+					top: i,
+					left: n
+				} = this.adjustPosition(e);
+			this.ui.container.style.top = `${i}px`, this.ui.container.style.left = `${n}px`, this.ui.container.classList.add("show"), this.trigger("show", {
+				target: e
+			})
+		}
+		hide() {
+			this.ui.container.classList.remove("show"), this.datePicked.length = 0, this.renderAll(), this.trigger("hide")
+		}
+		setDate(t) {
+			const i = new e(t, this.options.format);
+			this.options.date = i.clone(), this.updateValues(), this.calendars.length && this.renderAll()
+		}
+		getDate() {
+			return this.options.date instanceof e ? this.options.date.clone() : null
+		}
+		parseValues() {
+			this.options.date ? this.setDate(this.options.date) : this.options.element instanceof HTMLInputElement && this.options.element.value.length && this.setDate(this.options.element.value), this.options.date instanceof Date || (this.options.date = null)
+		}
+		updateValues() {
+			const t = this.getDate(),
+				e = t instanceof Date ? t.format(this.options.format, this.options.lang) : "",
+				i = this.options.element;
+			i instanceof HTMLInputElement ? i.value = e : i instanceof HTMLElement && (i.innerText = e)
+		}
+		hidePicker(t) {
+			let e = t.target,
+				i = null;
+			e.shadowRoot && (e = t.composedPath()[0], i = e.getRootNode().host), this.isShown() && i !== this.ui.wrapper && e !== this.options.element && this.hide()
+		}
+		renderAll(t) {
+			this.trigger("render", {
+				view: "Container",
+				date: (t || this.calendars[0]).clone()
+			})
+		}
+		isCalendarHeaderButton(t) {
+			return ["previous-button", "next-button"].some((e => t.classList.contains(e)))
+		}
+		isCalendarDay(t) {
+			return t.classList.contains("day")
+		}
+		isApplyButton(t) {
+			return t.classList.contains("apply-button")
+		}
+		isCancelButton(t) {
+			return t.classList.contains("cancel-button")
+		}
+		gotoDate(t) {
+			const i = new e(t, this.options.format);
+			i.setDate(1), this.calendars[0] = i.clone(), this.renderAll()
+		}
+		clear() {
+			this.options.date = null, this.datePicked.length = 0, this.updateValues(), this.renderAll(), this.trigger("clear")
+		}
+		handleOptions() {
+			this.options.element instanceof HTMLElement || (this.options.element = this.options.doc.querySelector(this.options.element)), "function" == typeof this.options.documentClick && document.addEventListener("click", this.options.documentClick, !0), this.options.element instanceof HTMLInputElement && (this.options.element.readOnly = this.options.readonly), this.options.date ? this.calendars[0] = new e(this.options.date, this.options.format) : this.calendars[0] = new e
+		}
+		handleCSS() {
+			if(Array.isArray(this.options.css)) this.options.css.forEach((t => {
+				const e = document.createElement("link");e.href = t,
+				e.rel = "stylesheet";
+				const i = () => {
+					this.cssLoaded++,
+					this.cssLoaded === this.options.css.length && (this.ui.wrapper.style.display = "")
+				};e.addEventListener("load", i),
+				e.addEventListener("error", i),
+				this.ui.shadowRoot.append(e)
+			}));
+			else if("string" == typeof this.options.css) {
+				const t = document.createElement("style"),
+					e = document.createTextNode(this.options.css);
+				t.appendChild(e), this.ui.shadowRoot.append(t), this.ui.wrapper.style.display = ""
+			} else "function" == typeof this.options.css && (this.options.css.call(this, this), this.ui.wrapper.style.display = "")
+		}
+		adjustPosition(t) {
+			const e = t.getBoundingClientRect(),
+				i = this.ui.wrapper.getBoundingClientRect();
+			this.ui.container.classList.add("calc");
+			const n = this.ui.container.getBoundingClientRect();
+			this.ui.container.classList.remove("calc");
+			let s = e.bottom - i.bottom,
+				o = e.left - i.left;
+			return "undefined" != typeof window && (window.innerHeight < s + n.height && s - n.height >= 0 && (s = e.top - i.top - n.height), window.innerWidth < o + n.width && e.right - n.width >= 0 && (o = e.right - i.right - n.width)), {
+				left: o,
+				top: s
+			}
+		}
+	}
+	var o = Object.freeze({
+		__proto__: null,
+		Core: s,
+		create: s
+	});
+	class a {
+		picker;
+		options;
+		priority = 0;
+		dependencies = [];
+		attach(t) {
+			const e = this.getName(),
+				i = {...this.options
+				};
+			this.options = {...this.options,
+				...t.options[e] || {}
+			};
+			for(const n of Object.keys(i))
+				if(null !== i[n] && "object" == typeof i[n] && Object.keys(i[n]).length && e in t.options && n in t.options[e]) {
+					const s = {...t.options[e][n]
+					};
+					null !== s && "object" == typeof s && Object.keys(s).length && Object.keys(s).every((t => Object.keys(i[n]).includes(t))) && (this.options[n] = {...i[n],
+						...s
+					})
+				}
+			if(this.picker = t, this.dependenciesNotFound()) {
+				const t = this.dependencies.filter((t => !this.pluginsAsStringArray().includes(t)));
+				return void console.warn(`${this.getName()}: required dependencies (${t.join(", ")}).`)
+			}
+			const n = this.camelCaseToKebab(this.getName());
+			this.picker.ui.container.classList.add(n), this.onAttach()
+		}
+		detach() {
+			const t = this.camelCaseToKebab(this.getName());
+			this.picker.ui.container.classList.remove(t), "function" == typeof this.onDetach && this.onDetach()
+		}
+		dependenciesNotFound() {
+			return this.dependencies.length && !this.dependencies.every((t => this.pluginsAsStringArray().includes(t)))
+		}
+		pluginsAsStringArray() {
+			return this.picker.options.plugins.map((t => "function" == typeof t ? (new t).getName() : t))
+		}
+		camelCaseToKebab(t) {
+			return t.replace(/([a-zA-Z])(?=[A-Z])/g, "$1-").toLowerCase()
+		}
+	}
+	t.AmpPlugin = class extends a {
+		rangePlugin;
+		lockPlugin;
+		priority = 10;
+		binds = {
+			onView: this.onView.bind(this),
+			onColorScheme: this.onColorScheme.bind(this)
+		};
+		options = {
+			dropdown: {
+				months: !1,
+				years: !1,
+				minYear: 1950,
+				maxYear: null
+			},
+			darkMode: !0,
+			locale: {
+				resetButton: '<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>'
+			}
+		};
+		matchMedia;
+		getName() {
+			return "AmpPlugin"
+		}
+		onAttach() {
+			this.options.darkMode && window && "matchMedia" in window && (this.matchMedia = window.matchMedia("(prefers-color-scheme: dark)"), this.matchMedia.matches && (this.picker.ui.container.dataset.theme = "dark"), this.matchMedia.addEventListener("change", this.binds.onColorScheme)), this.options.weekNumbers && this.picker.ui.container.classList.add("week-numbers"), this.picker.on("view", this.binds.onView)
+		}
+		onDetach() {
+			this.options.darkMode && window && "matchMedia" in window && this.matchMedia.removeEventListener("change", this.binds.onColorScheme), this.picker.ui.container.removeAttribute("data-theme"), this.picker.ui.container.classList.remove("week-numbers"), this.picker.off("view", this.binds.onView)
+		}
+		onView(t) {
+			this.lockPlugin = this.picker.PluginManager.getInstance("LockPlugin"), this.rangePlugin = this.picker.PluginManager.getInstance("RangePlugin"), this.handleDropdown(t), this.handleResetButton(t), this.handleWeekNumbers(t)
+		}
+		onColorScheme(t) {
+			const e = t.matches ? "dark" : "light";
+			this.picker.ui.container.dataset.theme = e
+		}
+		handleDropdown(t) {
+			const {
+				view: i,
+				target: n,
+				date: s,
+				index: o
+			} = t.detail;
+			if("CalendarHeader" === i) {
+				const t = n.querySelector(".month-name");
+				if(this.options.dropdown.months) {
+					t.childNodes[0].remove();
+					const i = document.createElement("select");
+					i.className = "month-name--select month-name--dropdown";
+					for(let t = 0; t < 12; t += 1) {
+						const n = document.createElement("option"),
+							o = new e(new Date(s.getFullYear(), t, 2, 0, 0, 0)),
+							a = new e(new Date(s.getFullYear(), t, 1, 0, 0, 0));
+						n.value = String(t), n.text = o.toLocaleString(this.picker.options.lang, {
+							month: "long"
+						}), this.lockPlugin && (n.disabled = this.lockPlugin.options.minDate && a.isBefore(new e(this.lockPlugin.options.minDate), "month") || this.lockPlugin.options.maxDate && a.isAfter(new e(this.lockPlugin.options.maxDate), "month")), n.selected = a.getMonth() === s.getMonth(), i.appendChild(n)
+					}
+					i.addEventListener("change", (t => {
+						const e = t.target;this.picker.calendars[0].setDate(1),
+						this.picker.calendars[0].setMonth(Number(e.value)),
+						this.picker.renderAll()
+					})), t.prepend(i)
+				}
+				if(this.options.dropdown.years) {
+					t.childNodes[1].remove();
+					const i = document.createElement("select");
+					i.className = "month-name--select";
+					const n = this.options.dropdown.minYear,
+						o = this.options.dropdown.maxYear ? this.options.dropdown.maxYear : (new Date).getFullYear();
+					if(s.getFullYear() > o) {
+						const t = document.createElement("option");
+						t.value = String(s.getFullYear()), t.text = String(s.getFullYear()), t.selected = !0, t.disabled = !0, i.appendChild(t)
+					}
+					for(let t = o; t >= n; t -= 1) {
+						const n = document.createElement("option"),
+							o = new e(new Date(t, 0, 1, 0, 0, 0));
+						n.value = String(t), n.text = String(t), this.lockPlugin && (n.disabled = this.lockPlugin.options.minDate && o.isBefore(new e(this.lockPlugin.options.minDate), "year") || this.lockPlugin.options.maxDate && o.isAfter(new e(this.lockPlugin.options.maxDate), "year")), n.selected = s.getFullYear() === t, i.appendChild(n)
+					}
+					if(s.getFullYear() < n) {
+						const t = document.createElement("option");
+						t.value = String(s.getFullYear()), t.text = String(s.getFullYear()), t.selected = !0, t.disabled = !0, i.appendChild(t)
+					}
+					if("asc" === this.options.dropdown.years) {
+						const t = Array.prototype.slice.call(i.childNodes).reverse();
+						i.innerHTML = "", t.forEach((t => {
+							t.innerHTML = t.value,
+							i.appendChild(t)
+						}))
+					}
+					i.addEventListener("change", (t => {
+						const e = t.target;this.picker.calendars[0].setFullYear(Number(e.value)),
+						this.picker.renderAll()
+					})), t.appendChild(i)
+				}
+			}
+		}
+		handleResetButton(t) {
+			const {
+				view: e,
+				target: i
+			} = t.detail;
+			if("CalendarHeader" === e && this.options.resetButton) {
+				const t = document.createElement("button");
+				t.className = "reset-button unit", t.innerHTML = this.options.locale.resetButton, t.addEventListener("click", (t => {
+					t.preventDefault();
+					let e = !0;
+					"function" == typeof this.options.resetButton && (e = this.options.resetButton.call(this)),
+					e && this.picker.clear()
+				})), i.appendChild(t)
+			}
+		}
+		handleWeekNumbers(t) {
+			if(this.options.weekNumbers) {
+				const {
+					view: i,
+					target: n
+				} = t.detail;
+				if("CalendarDayNames" === i) {
+					const t = document.createElement("div");
+					t.className = "wnum-header", t.innerHTML = "Wk", n.prepend(t)
+				}
+				"CalendarDays" === i && [...n.children].forEach(((t, i) => {
+					if(0 === i || i % 7 == 0) {
+						let i;
+						if(t.classList.contains("day")) i = new e(t.dataset.time);
+						else {
+							const t = n.querySelector(".day");
+							i = new e(t.dataset.time)
+						}
+						let s = i.getWeek(this.picker.options.firstDay);
+						53 === s && 0 === i.getMonth() && (s = "53/1");
+						const o = document.createElement("div");
+						o.className = "wnum-item", o.innerHTML = String(s), n.insertBefore(o, t)
+					}
+				}))
+			}
+		}
+	}, t.DateTime = e, t.KbdPlugin = class extends a {
+		docElement = null;
+		rangePlugin;
+		binds = {
+			onView: this.onView.bind(this),
+			onKeydown: this.onKeydown.bind(this)
+		};
+		options = {
+			unitIndex: 1,
+			dayIndex: 2
+		};
+		getName() {
+			return "KbdPlugin"
+		}
+		onAttach() {
+			const t = this.picker.options.element,
+				e = t.getBoundingClientRect();
+			if(this.docElement = document.createElement("span"), this.docElement.style.position = "absolute", this.docElement.style.top = `${t.offsetTop}px`, this.docElement.style.left = t.offsetLeft + e.width - 25 + "px", this.docElement.attachShadow({
+					mode: "open"
+				}), this.options.html) this.docElement.shadowRoot.innerHTML = this.options.html;
+			else {
+				const t = `\n      <style>\n      button {\n        border: none;\n        background: transparent;\n        font-size: ${window.getComputedStyle(this.picker.options.element).fontSize};\n      }\n      </style>\n\n      <button>&#128197;</button>\n      `;
+				this.docElement.shadowRoot.innerHTML = t
+			}
+			const i = this.docElement.shadowRoot.querySelector("button");
+			i && (i.addEventListener("click", (t => {
+				t.preventDefault(),
+				this.picker.show({
+					target: this.picker.options.element
+				})
+			}), {
+				capture: !0
+			}), i.addEventListener("keydown", (t => {
+				"Escape" === t.code && this.picker.hide()
+			}), {
+				capture: !0
+			})), this.picker.options.element.after(this.docElement), this.picker.on("view", this.binds.onView), this.picker.on("keydown", this.binds.onKeydown)
+		}
+		onDetach() {
+			this.docElement && this.docElement.isConnected && this.docElement.remove(), this.picker.off("view", this.binds.onView), this.picker.off("keydown", this.binds.onKeydown)
+		}
+		onView(t) {
+			const {
+				view: e,
+				target: i
+			} = t.detail;
+			i && "querySelector" in i && ("CalendarDay" !== e || ["locked", "not-available"].some((t => i.classList.contains(t))) ? [...i.querySelectorAll(".unit:not(.day)")].forEach((t => t.tabIndex = this.options.unitIndex)) : i.tabIndex = this.options.dayIndex)
+		}
+		onKeydown(t) {
+			switch(this.onMouseEnter(t), t.code) {
+				case "ArrowUp":
+				case "ArrowDown":
+					this.verticalMove(t);
+					break;
+				case "ArrowLeft":
+				case "ArrowRight":
+					this.horizontalMove(t);
+					break;
+				case "Enter":
+				case "Space":
+					this.handleEnter(t);
+					break;
+				case "Escape":
+					this.picker.hide()
+			}
+		}
+		findAllowableDaySibling(t, e, i) {
+			const n = Array.from(t.querySelectorAll(`.day[tabindex="${this.options.dayIndex}"]`)),
+				s = n.indexOf(e);
+			return n.filter(((t, e) => i(e, s) && t.tabIndex === this.options.dayIndex))[0]
+		}
+		changeMonth(t) {
+			const e = {
+					ArrowLeft: "previous",
+					ArrowRight: "next"
+				},
+				i = this.picker.ui.container.querySelector(`.${e[t.code]}-button[tabindex="${this.options.unitIndex}"]`);
+			i && !i.parentElement.classList.contains(`no-${e[t.code]}-month`) && (i.dispatchEvent(new Event("click", {
+				bubbles: !0
+			})), setTimeout((() => {
+				let e = null;
+				switch(t.code) {
+					case "ArrowLeft":
+						const t = this.picker.ui.container.querySelectorAll(`.day[tabindex="${this.options.dayIndex}"]`);
+						e = t[t.length - 1];
+						break;
+					case "ArrowRight":
+						e = this.picker.ui.container.querySelector(`.day[tabindex="${this.options.dayIndex}"]`)
+				}
+				e && e.focus()
+			})))
+		}
+		verticalMove(t) {
+			const e = t.target;
+			if(e.classList.contains("day")) {
+				t.preventDefault();
+				const i = this.findAllowableDaySibling(this.picker.ui.container, e, ((e, i) => e === ("ArrowUp" === t.code ? i - 7 : i + 7)));
+				i && i.focus()
+			}
+		}
+		horizontalMove(t) {
+			const e = t.target;
+			if(e.classList.contains("day")) {
+				t.preventDefault();
+				const i = this.findAllowableDaySibling(this.picker.ui.container, e, ((e, i) => e === ("ArrowLeft" === t.code ? i - 1 : i + 1)));
+				i ? i.focus() : this.changeMonth(t)
+			}
+		}
+		handleEnter(t) {
+			const e = t.target;
+			e.classList.contains("day") && (t.preventDefault(), e.dispatchEvent(new Event("click", {
+				bubbles: !0
+			})), setTimeout((() => {
+				if(this.rangePlugin = this.picker.PluginManager.getInstance("RangePlugin"), this.rangePlugin || !this.picker.options.autoApply) {
+					const t = this.picker.ui.container.querySelector(".day.selected");
+					t && setTimeout((() => {
+						t.focus()
+					}))
+				}
+			})))
+		}
+		onMouseEnter(t) {
+			t.target.classList.contains("day") && setTimeout((() => {
+				const t = this.picker.ui.shadowRoot.activeElement;t && t.dispatchEvent(new Event("mouseenter", {
+					bubbles: !0
+				}))
+			}))
+		}
+	}, t.LockPlugin = class extends a {
+		priority = 1;
+		binds = {
+			onView: this.onView.bind(this)
+		};
+		options = {
+			minDate: null,
+			maxDate: null,
+			minDays: null,
+			maxDays: null,
+			selectForward: null,
+			selectBackward: null,
+			presets: !0,
+			inseparable: !1,
+			filter: null
+		};
+		getName() {
+			return "LockPlugin"
+		}
+		onAttach() {
+			if(this.options.minDate && (this.options.minDate = new e(this.options.minDate, this.picker.options.format, this.picker.options.lang)), this.options.maxDate && (this.options.maxDate = new e(this.options.maxDate, this.picker.options.format, this.picker.options.lang), this.options.maxDate instanceof e && this.picker.options.calendars > 1 && this.picker.calendars[0].isSame(this.options.maxDate, "month"))) {
+				const t = this.picker.calendars[0].clone().subtract(1, "month");
+				this.picker.gotoDate(t)
+			}
+			if((this.options.minDays || this.options.maxDays || this.options.selectForward || this.options.selectBackward) && !this.picker.options.plugins.includes("RangePlugin")) {
+				const t = ["minDays", "maxDays", "selectForward", "selectBackward"];
+				console.warn(`${this.getName()}: options ${t.join(", ")} required RangePlugin.`)
+			}
+			this.picker.on("view", this.binds.onView)
+		}
+		onDetach() {
+			this.picker.off("view", this.binds.onView)
+		}
+		onView(t) {
+			const {
+				view: i,
+				target: n,
+				date: s
+			} = t.detail;
+			if("CalendarHeader" === i && (this.options.minDate instanceof e && s.isSameOrBefore(this.options.minDate, "month") && n.classList.add("no-previous-month"), this.options.maxDate instanceof e && s.isSameOrAfter(this.options.maxDate, "month") && n.classList.add("no-next-month")), "CalendarDay" === i) {
+				const t = this.picker.datePicked.length ? this.picker.datePicked[0] : null;
+				if(this.testFilter(s)) return void n.classList.add("locked");
+				if(this.options.inseparable) {
+					if(this.options.minDays) {
+						const t = s.clone().subtract(this.options.minDays - 1, "day"),
+							e = s.clone().add(this.options.minDays - 1, "day");
+						let i = !1,
+							o = !1;
+						for(; t.isBefore(s, "day");) {
+							if(this.testFilter(t)) {
+								i = !0;
+								break
+							}
+							t.add(1, "day")
+						}
+						for(; e.isAfter(s, "day");) {
+							if(this.testFilter(e)) {
+								o = !0;
+								break
+							}
+							e.subtract(1, "day")
+						}
+						i && o && n.classList.add("not-available")
+					}
+					this.rangeIsNotAvailable(s, t) && n.classList.add("not-available")
+				}
+				this.dateIsNotAvailable(s, t) && n.classList.add("not-available")
+			}
+			if(this.options.presets && "PresetPluginButton" === i) {
+				const t = new e(Number(n.dataset.start)),
+					i = new e(Number(n.dataset.end)),
+					s = i.diff(t, "day"),
+					o = this.options.minDays && s < this.options.minDays,
+					a = this.options.maxDays && s > this.options.maxDays;
+				(o || a || this.lockMinDate(t) || this.lockMaxDate(t) || this.lockMinDate(i) || this.lockMaxDate(i) || this.rangeIsNotAvailable(t, i)) && n.setAttribute("disabled", "disabled")
+			}
+		}
+		dateIsNotAvailable(t, e) {
+			return this.lockMinDate(t) || this.lockMaxDate(t) || this.lockMinDays(t, e) || this.lockMaxDays(t, e) || this.lockSelectForward(t) || this.lockSelectBackward(t)
+		}
+		rangeIsNotAvailable(t, e) {
+			if(!t || !e) return !1;
+			const i = (t.isSameOrBefore(e, "day") ? t : e).clone(),
+				n = (e.isSameOrAfter(t, "day") ? e : t).clone();
+			for(; i.isSameOrBefore(n, "day");) {
+				if(this.testFilter(i)) return !0;
+				i.add(1, "day")
+			}
+			return !1
+		}
+		lockMinDate(t) {
+			return this.options.minDate instanceof e && t.isBefore(this.options.minDate, "day")
+		}
+		lockMaxDate(t) {
+			return this.options.maxDate instanceof e && t.isAfter(this.options.maxDate, "day")
+		}
+		lockMinDays(t, e) {
+			if(this.options.minDays && e) {
+				const i = e.clone().subtract(this.options.minDays - 1, "day"),
+					n = e.clone().add(this.options.minDays - 1, "day");
+				return t.isBetween(i, n)
+			}
+			return !1
+		}
+		lockMaxDays(t, e) {
+			if(this.options.maxDays && e) {
+				const i = e.clone().subtract(this.options.maxDays, "day"),
+					n = e.clone().add(this.options.maxDays, "day");
+				return !t.isBetween(i, n)
+			}
+			return !1
+		}
+		lockSelectForward(t) {
+			if(1 === this.picker.datePicked.length && this.options.selectForward) {
+				const e = this.picker.datePicked[0].clone();
+				return t.isBefore(e, "day")
+			}
+			return !1
+		}
+		lockSelectBackward(t) {
+			if(1 === this.picker.datePicked.length && this.options.selectBackward) {
+				const e = this.picker.datePicked[0].clone();
+				return t.isAfter(e, "day")
+			}
+			return !1
+		}
+		testFilter(t) {
+			return "function" == typeof this.options.filter && this.options.filter(t, this.picker.datePicked)
+		}
+	}, t.PresetPlugin = class extends a {
+		dependencies = ["RangePlugin"];
+		binds = {
+			onView: this.onView.bind(this),
+			onClick: this.onClick.bind(this)
+		};
+		options = {
+			customLabels: ["Today", "Yesterday", "Last 7 Days", "Last 30 Days", "This Month", "Last Month"],
+			customPreset: {},
+			position: "left"
+		};
+		getName() {
+			return "PresetPlugin"
+		}
+		onAttach() {
+			if(!Object.keys(this.options.customPreset).length) {
+				const t = new e,
+					i = () => {
+						const i = t.clone();i.setDate(1);
+						const n = new Date(t.getFullYear(), t.getMonth() + 1, 0);
+						return [new e(i), new e(n)]
+					},
+					n = () => {
+						const i = t.clone();i.setMonth(i.getMonth() - 1),
+						i.setDate(1);
+						const n = new Date(t.getFullYear(), t.getMonth(), 0);
+						return [new e(i), new e(n)]
+					},
+					s = [
+						[t.clone(), t.clone()],
+						[t.clone().subtract(1, "day"), t.clone().subtract(1, "day")],
+						[t.clone().subtract(6, "day"), t.clone()],
+						[t.clone().subtract(29, "day"), t.clone()], i(), n()
+					];
+				Object.values(this.options.customLabels).forEach(((t, e) => {
+					this.options.customPreset[t] = s[e]
+				}))
+			}
+			this.picker.on("view", this.binds.onView), this.picker.on("click", this.binds.onClick)
+		}
+		onDetach() {
+			this.picker.off("view", this.binds.onView), this.picker.off("click", this.binds.onClick)
+		}
+		onView(t) {
+			const {
+				view: e,
+				target: i
+			} = t.detail;
+			if("Main" === e) {
+				const t = document.createElement("div");
+				t.className = "preset-plugin-container", Object.keys(this.options.customPreset).forEach((e => {
+					if(Object.prototype.hasOwnProperty.call(this.options.customPreset, e)) {
+						const i = this.options.customPreset[e],
+							n = document.createElement("button");
+						n.className = "preset-button unit", n.innerHTML = e, n.dataset.start = i[0].getTime(), n.dataset.end = i[1].getTime(), t.appendChild(n), this.picker.trigger("view", {
+							view: "PresetPluginButton",
+							target: n
+						})
+					}
+				})), i.appendChild(t), i.classList.add(`preset-${this.options.position}`), this.picker.trigger("view", {
+					view: "PresetPluginContainer",
+					target: t
+				})
+			}
+		}
+		onClick(t) {
+			const i = t.target;
+			if(i instanceof HTMLElement) {
+				const t = i.closest(".unit");
+				if(!(t instanceof HTMLElement)) return;
+				if(this.isPresetButton(t)) {
+					const i = new e(Number(t.dataset.start)),
+						n = new e(Number(t.dataset.end));
+					this.picker.options.autoApply ? (this.picker.setDateRange(i, n), this.picker.trigger("select", {
+						start: this.picker.getStartDate(),
+						end: this.picker.getEndDate()
+					}), this.picker.hide()) : (this.picker.datePicked = [i, n], this.picker.renderAll())
+				}
+			}
+		}
+		isPresetButton(t) {
+			return t.classList.contains("preset-button")
+		}
+	}, t.RangePlugin = class extends a {
+		tooltipElement;
+		triggerElement;
+		binds = {
+			setStartDate: this.setStartDate.bind(this),
+			setEndDate: this.setEndDate.bind(this),
+			setDateRange: this.setDateRange.bind(this),
+			getStartDate: this.getStartDate.bind(this),
+			getEndDate: this.getEndDate.bind(this),
+			onView: this.onView.bind(this),
+			onShow: this.onShow.bind(this),
+			onMouseEnter: this.onMouseEnter.bind(this),
+			onMouseLeave: this.onMouseLeave.bind(this),
+			onClickCalendarDay: this.onClickCalendarDay.bind(this),
+			onClickApplyButton: this.onClickApplyButton.bind(this),
+			parseValues: this.parseValues.bind(this),
+			updateValues: this.updateValues.bind(this),
+			clear: this.clear.bind(this)
+		};
+		options = {
+			elementEnd: null,
+			startDate: null,
+			endDate: null,
+			repick: !1,
+			strict: !0,
+			delimiter: " - ",
+			tooltip: !0,
+			tooltipNumber: t => t,
+			locale: {
+				zero: "",
+				one: "day",
+				two: "",
+				few: "",
+				many: "",
+				other: "days"
+			},
+			documentClick: this.hidePicker.bind(this)
+		};
+		getName() {
+			return "RangePlugin"
+		}
+		onAttach() {
+			this.binds._setStartDate = this.picker.setStartDate, this.binds._setEndDate = this.picker.setEndDate, this.binds._setDateRange = this.picker.setDateRange, this.binds._getStartDate = this.picker.getStartDate, this.binds._getEndDate = this.picker.getEndDate, this.binds._parseValues = this.picker.parseValues, this.binds._updateValues = this.picker.updateValues, this.binds._clear = this.picker.clear, this.binds._onClickCalendarDay = this.picker.onClickCalendarDay, this.binds._onClickApplyButton = this.picker.onClickApplyButton, Object.defineProperties(this.picker, {
+				setStartDate: {
+					configurable: !0,
+					value: this.binds.setStartDate
+				},
+				setEndDate: {
+					configurable: !0,
+					value: this.binds.setEndDate
+				},
+				setDateRange: {
+					configurable: !0,
+					value: this.binds.setDateRange
+				},
+				getStartDate: {
+					configurable: !0,
+					value: this.binds.getStartDate
+				},
+				getEndDate: {
+					configurable: !0,
+					value: this.binds.getEndDate
+				},
+				parseValues: {
+					configurable: !0,
+					value: this.binds.parseValues
+				},
+				updateValues: {
+					configurable: !0,
+					value: this.binds.updateValues
+				},
+				clear: {
+					configurable: !0,
+					value: this.binds.clear
+				},
+				onClickCalendarDay: {
+					configurable: !0,
+					value: this.binds.onClickCalendarDay
+				},
+				onClickApplyButton: {
+					configurable: !0,
+					value: this.binds.onClickApplyButton
+				}
+			}), this.options.elementEnd && (this.options.elementEnd instanceof HTMLElement || (this.options.elementEnd = this.picker.options.doc.querySelector(this.options.elementEnd)), this.options.elementEnd instanceof HTMLInputElement && (this.options.elementEnd.readOnly = this.picker.options.readonly), "function" == typeof this.picker.options.documentClick && (document.removeEventListener("click", this.picker.options.documentClick, !0), "function" == typeof this.options.documentClick && document.addEventListener("click", this.options.documentClick, !0)), this.options.elementEnd.addEventListener("click", this.picker.show.bind(this.picker))), this.options.repick = this.options.repick && this.options.elementEnd instanceof HTMLElement, this.picker.options.date = null, this.picker.on("view", this.binds.onView), this.picker.on("show", this.binds.onShow), this.picker.on("mouseenter", this.binds.onMouseEnter, !0), this.picker.on("mouseleave", this.binds.onMouseLeave, !0), this.checkIntlPluralLocales()
+		}
+		onDetach() {
+			Object.defineProperties(this.picker, {
+				setStartDate: {
+					configurable: !0,
+					value: this.binds._setStartDate
+				},
+				setEndDate: {
+					configurable: !0,
+					value: this.binds._setEndDate
+				},
+				setDateRange: {
+					configurable: !0,
+					value: this.binds._setDateRange
+				},
+				getStartDate: {
+					configurable: !0,
+					value: this.binds._getStartDate
+				},
+				getEndDate: {
+					configurable: !0,
+					value: this.binds._getEndDate
+				},
+				parseValues: {
+					configurable: !0,
+					value: this.binds._parseValues
+				},
+				updateValues: {
+					configurable: !0,
+					value: this.binds._updateValues
+				},
+				clear: {
+					configurable: !0,
+					value: this.binds._clear
+				},
+				onClickCalendarDay: {
+					configurable: !0,
+					value: this.binds._onClickCalendarDay
+				},
+				onClickApplyButton: {
+					configurable: !0,
+					value: this.binds._onClickApplyButton
+				}
+			}), this.picker.off("view", this.binds.onView), this.picker.off("show", this.binds.onShow), this.picker.off("mouseenter", this.binds.onMouseEnter, !0), this.picker.off("mouseleave", this.binds.onMouseLeave, !0)
+		}
+		parseValues() {
+			if(this.options.startDate || this.options.endDate) this.options.strict ? this.options.startDate && this.options.endDate ? this.setDateRange(this.options.startDate, this.options.endDate) : (this.options.startDate = null, this.options.endDate = null) : (this.options.startDate && this.setStartDate(this.options.startDate), this.options.endDate && this.setEndDate(this.options.endDate));
+			else if(this.options.elementEnd) this.options.strict ? this.picker.options.element instanceof HTMLInputElement && this.picker.options.element.value.length && this.options.elementEnd instanceof HTMLInputElement && this.options.elementEnd.value.length && this.setDateRange(this.picker.options.element.value, this.options.elementEnd.value) : (this.picker.options.element instanceof HTMLInputElement && this.picker.options.element.value.length && this.setStartDate(this.picker.options.element.value), this.options.elementEnd instanceof HTMLInputElement && this.options.elementEnd.value.length && this.setEndDate(this.options.elementEnd.value));
+			else if(this.picker.options.element instanceof HTMLInputElement && this.picker.options.element.value.length) {
+				const [t, e] = this.picker.options.element.value.split(this.options.delimiter);
+				this.options.strict ? t && e && this.setDateRange(t, e) : (t && this.setStartDate(t), e && this.setEndDate(e))
+			}
+		}
+		updateValues() {
+			const t = this.picker.options.element,
+				e = this.options.elementEnd,
+				i = this.picker.getStartDate(),
+				n = this.picker.getEndDate(),
+				s = i instanceof Date ? i.format(this.picker.options.format, this.picker.options.lang) : "",
+				o = n instanceof Date ? n.format(this.picker.options.format, this.picker.options.lang) : "";
+			if(e) t instanceof HTMLInputElement ? t.value = s : t instanceof HTMLElement && (t.innerText = s), e instanceof HTMLInputElement ? e.value = o : e instanceof HTMLElement && (e.innerText = o);
+			else {
+				const e = `${s}${s||o?this.options.delimiter:""}${o}`;
+				t instanceof HTMLInputElement ? t.value = e : t instanceof HTMLElement && (t.innerText = e)
+			}
+		}
+		clear() {
+			this.options.startDate = null, this.options.endDate = null, this.picker.datePicked.length = 0, this.updateValues(), this.picker.renderAll(), this.picker.trigger("clear")
+		}
+		onShow(t) {
+			const {
+				target: e
+			} = t.detail;
+			this.triggerElement = e, this.picker.options.scrollToDate && this.getStartDate() instanceof Date && this.picker.gotoDate(this.getStartDate()), this.initializeRepick()
+		}
+		onView(t) {
+			const {
+				view: i,
+				target: n
+			} = t.detail;
+			if("Main" === i && (this.tooltipElement = document.createElement("span"), this.tooltipElement.className = "range-plugin-tooltip", n.appendChild(this.tooltipElement)), "CalendarDay" === i) {
+				const t = new e(n.dataset.time),
+					i = this.picker.datePicked,
+					s = i.length ? this.picker.datePicked[0] : this.getStartDate(),
+					o = i.length ? this.picker.datePicked[1] : this.getEndDate();
+				s && s.isSame(t, "day") && n.classList.add("start"), s && o && (o.isSame(t, "day") && n.classList.add("end"), t.isBetween(s, o) && n.classList.add("in-range"))
+			}
+			if("Footer" === i) {
+				const t = 1 === this.picker.datePicked.length && !this.options.strict || 2 === this.picker.datePicked.length;
+				n.querySelector(".apply-button").disabled = !t
+			}
+		}
+		hidePicker(t) {
+			let e = t.target,
+				i = null;
+			e.shadowRoot && (e = t.composedPath()[0], i = e.getRootNode().host), this.picker.isShown() && i !== this.picker.ui.wrapper && e !== this.picker.options.element && e !== this.options.elementEnd && this.picker.hide()
+		}
+		setStartDate(t) {
+			const i = new e(t, this.picker.options.format);
+			this.options.startDate = i ? i.clone() : null, this.updateValues(), this.picker.renderAll()
+		}
+		setEndDate(t) {
+			const i = new e(t, this.picker.options.format);
+			this.options.endDate = i ? i.clone() : null, this.updateValues(), this.picker.renderAll()
+		}
+		setDateRange(t, i) {
+			const n = new e(t, this.picker.options.format),
+				s = new e(i, this.picker.options.format);
+			this.options.startDate = n ? n.clone() : null, this.options.endDate = s ? s.clone() : null, this.updateValues(), this.picker.renderAll()
+		}
+		getStartDate() {
+			return this.options.startDate instanceof Date ? this.options.startDate.clone() : null
+		}
+		getEndDate() {
+			return this.options.endDate instanceof Date ? this.options.endDate.clone() : null
+		}
+		onMouseEnter(t) {
+			const i = t.target;
+			if(i instanceof HTMLElement) {
+				this.isContainer(i) && this.initializeRepick();
+				const t = i.closest(".unit");
+				if(!(t instanceof HTMLElement)) return;
+				if(this.picker.isCalendarDay(t)) {
+					if(1 !== this.picker.datePicked.length) return;
+					let i = this.picker.datePicked[0].clone(),
+						n = new e(t.dataset.time),
+						s = !1;
+					if(i.isAfter(n, "day")) {
+						const t = i.clone();
+						i = n.clone(), n = t.clone(), s = !0
+					}
+					if([...this.picker.ui.container.querySelectorAll(".day")].forEach((o => {
+							const a = new e(o.dataset.time),
+								r = this.picker.Calendar.getCalendarDayView(a);a.isBetween(i, n) && r.classList.add("in-range"),
+							a.isSame(this.picker.datePicked[0], "day") && (r.classList.add("start"), r.classList.toggle("flipped", s)),
+							o === t && (r.classList.add("end"), r.classList.toggle("flipped", s)),
+							o.className = r.className
+						})), this.options.tooltip) {
+						const e = this.options.tooltipNumber(n.diff(i, "day") + 1);
+						if(e > 0) {
+							const i = new Intl.PluralRules(this.picker.options.lang).select(e),
+								n = `${e} ${this.options.locale[i]}`;
+							this.showTooltip(t, n)
+						} else this.hideTooltip()
+					}
+				}
+			}
+		}
+		onMouseLeave(t) {
+			if(this.isContainer(t.target) && this.options.repick) {
+				const t = this.getStartDate(),
+					e = this.getEndDate();
+				t && e && (this.picker.datePicked.length = 0, this.picker.renderAll())
+			}
+		}
+		onClickCalendarDay(t) {
+			if(this.picker.isCalendarDay(t)) {
+				2 === this.picker.datePicked.length && (this.picker.datePicked.length = 0);
+				const i = new e(t.dataset.time);
+				if(this.picker.datePicked[this.picker.datePicked.length] = i, 2 === this.picker.datePicked.length && this.picker.datePicked[0].isAfter(this.picker.datePicked[1])) {
+					const t = this.picker.datePicked[1].clone();
+					this.picker.datePicked[1] = this.picker.datePicked[0].clone(), this.picker.datePicked[0] = t.clone()
+				}
+				1 !== this.picker.datePicked.length && this.picker.options.autoApply || this.picker.trigger("preselect", {
+					start: this.picker.datePicked[0] instanceof Date ? this.picker.datePicked[0].clone() : null,
+					end: this.picker.datePicked[1] instanceof Date ? this.picker.datePicked[1].clone() : null
+				}), 1 === this.picker.datePicked.length && (!this.options.strict && this.picker.options.autoApply && (this.picker.options.element === this.triggerElement && this.setStartDate(this.picker.datePicked[0]), this.options.elementEnd === this.triggerElement && this.setEndDate(this.picker.datePicked[0]), this.picker.trigger("select", {
+					start: this.picker.getStartDate(),
+					end: this.picker.getEndDate()
+				})), this.picker.renderAll()), 2 === this.picker.datePicked.length && (this.picker.options.autoApply ? (this.setDateRange(this.picker.datePicked[0], this.picker.datePicked[1]), this.picker.trigger("select", {
+					start: this.picker.getStartDate(),
+					end: this.picker.getEndDate()
+				}), this.picker.hide()) : (this.hideTooltip(), this.picker.renderAll()))
+			}
+		}
+		onClickApplyButton(t) {
+			this.picker.isApplyButton(t) && (1 !== this.picker.datePicked.length || this.options.strict || (this.picker.options.element === this.triggerElement && (this.options.endDate = null, this.setStartDate(this.picker.datePicked[0])), this.options.elementEnd === this.triggerElement && (this.options.startDate = null, this.setEndDate(this.picker.datePicked[0]))), 2 === this.picker.datePicked.length && this.setDateRange(this.picker.datePicked[0], this.picker.datePicked[1]), this.picker.trigger("select", {
+				start: this.picker.getStartDate(),
+				end: this.picker.getEndDate()
+			}), this.picker.hide())
+		}
+		showTooltip(t, e) {
+			this.tooltipElement.style.visibility = "visible", this.tooltipElement.innerHTML = e;
+			const i = this.picker.ui.container.getBoundingClientRect(),
+				n = this.tooltipElement.getBoundingClientRect(),
+				s = t.getBoundingClientRect();
+			let o = s.top,
+				a = s.left;
+			o -= i.top, a -= i.left, o -= n.height, a -= n.width / 2, a += s.width / 2, this.tooltipElement.style.top = `${o}px`, this.tooltipElement.style.left = `${a}px`
+		}
+		hideTooltip() {
+			this.tooltipElement.style.visibility = "hidden"
+		}
+		checkIntlPluralLocales() {
+			if(!this.options.tooltip) return;
+			const t = [...new Set([new Intl.PluralRules(this.picker.options.lang).select(0), new Intl.PluralRules(this.picker.options.lang).select(1), new Intl.PluralRules(this.picker.options.lang).select(2), new Intl.PluralRules(this.picker.options.lang).select(6), new Intl.PluralRules(this.picker.options.lang).select(18)])],
+				e = Object.keys(this.options.locale);
+			t.every((t => e.includes(t))) || console.warn(`${this.getName()}: provide locales (${t.join(", ")}) for correct tooltip text.`)
+		}
+		initializeRepick() {
+			if(!this.options.repick) return;
+			const t = this.getStartDate(),
+				e = this.getEndDate();
+			e && this.triggerElement === this.picker.options.element && (this.picker.datePicked[0] = e), t && this.triggerElement === this.options.elementEnd && (this.picker.datePicked[0] = t)
+		}
+		isContainer(t) {
+			return t === this.picker.ui.container
+		}
+	}, t.TimePlugin = class extends a {
+		options = {
+			native: !1,
+			seconds: !1,
+			stepHours: 1,
+			stepMinutes: 5,
+			stepSeconds: 5,
+			format12: !1
+		};
+		rangePlugin;
+		timePicked = {
+			input: null,
+			start: null,
+			end: null
+		};
+		timePrePicked = {
+			input: null,
+			start: null,
+			end: null
+		};
+		binds = {
+			getDate: this.getDate.bind(this),
+			getStartDate: this.getStartDate.bind(this),
+			getEndDate: this.getEndDate.bind(this),
+			onView: this.onView.bind(this),
+			onInput: this.onInput.bind(this),
+			onChange: this.onChange.bind(this),
+			onClick: this.onClick.bind(this),
+			setTime: this.setTime.bind(this),
+			setStartTime: this.setStartTime.bind(this),
+			setEndTime: this.setEndTime.bind(this)
+		};
+		getName() {
+			return "TimePlugin"
+		}
+		onAttach() {
+			this.binds._getDate = this.picker.getDate, this.binds._getStartDate = this.picker.getStartDate, this.binds._getEndDate = this.picker.getEndDate, Object.defineProperties(this.picker, {
+				getDate: {
+					configurable: !0,
+					value: this.binds.getDate
+				},
+				getStartDate: {
+					configurable: !0,
+					value: this.binds.getStartDate
+				},
+				getEndDate: {
+					configurable: !0,
+					value: this.binds.getEndDate
+				},
+				setTime: {
+					configurable: !0,
+					value: this.binds.setTime
+				},
+				setStartTime: {
+					configurable: !0,
+					value: this.binds.setStartTime
+				},
+				setEndTime: {
+					configurable: !0,
+					value: this.binds.setEndTime
+				}
+			}), this.rangePlugin = this.picker.PluginManager.getInstance("RangePlugin"), this.parseValues(), this.picker.on("view", this.binds.onView), this.picker.on("input", this.binds.onInput), this.picker.on("change", this.binds.onChange), this.picker.on("click", this.binds.onClick)
+		}
+		onDetach() {
+			delete this.picker.setTime, delete this.picker.setStartTime, delete this.picker.setEndTime, Object.defineProperties(this.picker, {
+				getDate: {
+					configurable: !0,
+					value: this.binds._getDate
+				},
+				getStartDate: {
+					configurable: !0,
+					value: this.binds._getStartDate
+				},
+				getEndDate: {
+					configurable: !0,
+					value: this.binds._getEndDate
+				}
+			}), this.picker.off("view", this.binds.onView), this.picker.off("input", this.binds.onInput), this.picker.off("change", this.binds.onChange), this.picker.off("click", this.binds.onClick)
+		}
+		onView(t) {
+			const {
+				view: e,
+				target: i
+			} = t.detail;
+			if("Main" === e) {
+				this.rangePlugin = this.picker.PluginManager.getInstance("RangePlugin");
+				const t = document.createElement("div");
+				if(t.className = "time-plugin-container", this.rangePlugin) {
+					const e = this.getStartInput();
+					t.appendChild(e), this.picker.trigger("view", {
+						view: "TimePluginInput",
+						target: e
+					});
+					const i = this.getEndInput();
+					t.appendChild(i), this.picker.trigger("view", {
+						view: "TimePluginInput",
+						target: i
+					})
+				} else {
+					const e = this.getSingleInput();
+					t.appendChild(e), this.picker.trigger("view", {
+						view: "TimePluginInput",
+						target: e
+					})
+				}
+				i.appendChild(t), this.picker.trigger("view", {
+					view: "TimePluginContainer",
+					target: t
+				})
+			}
+		}
+		onInput(t) {
+			const i = t.target;
+			if(i instanceof HTMLInputElement && i.classList.contains("time-plugin-input")) {
+				const t = this.timePicked[i.name] || new e,
+					[n, s] = i.value.split(":");
+				t.setHours(Number(n) || 0, Number(s) || 0, 0, 0), this.picker.options.autoApply ? (this.timePicked[i.name] = t, this.picker.updateValues()) : this.timePrePicked[i.name] = t
+			}
+		}
+		onChange(t) {
+			const i = t.target;
+			if(i instanceof HTMLSelectElement && i.classList.contains("time-plugin-custom-input")) {
+				const t = /(\w+)\[(\w+)\]/,
+					[, n, s] = i.name.match(t),
+					o = Number(i.value);
+				let a = new e;
+				switch(!this.picker.options.autoApply && this.timePrePicked[n] instanceof Date ? a = this.timePrePicked[n].clone() : this.timePicked[n] instanceof Date && (a = this.timePicked[n].clone()), s) {
+					case "HH":
+						if(this.options.format12) {
+							const t = i.closest(".time-plugin-custom-block").querySelector(`select[name="${n}[period]"]`).value,
+								e = this.handleFormat12(t, a, o);
+							a.setHours(e.getHours(), e.getMinutes(), e.getSeconds(), 0)
+						} else a.setHours(o, a.getMinutes(), a.getSeconds(), 0);
+						break;
+					case "mm":
+						a.setHours(a.getHours(), o, a.getSeconds(), 0);
+						break;
+					case "ss":
+						a.setHours(a.getHours(), a.getMinutes(), o, 0);
+						break;
+					case "period":
+						if(this.options.format12) {
+							const t = i.closest(".time-plugin-custom-block").querySelector(`select[name="${n}[HH]"]`).value,
+								e = this.handleFormat12(i.value, a, Number(t));
+							a.setHours(e.getHours(), e.getMinutes(), e.getSeconds(), 0)
+						}
+				}
+				if(this.picker.options.autoApply) this.timePicked[n] = a, this.picker.updateValues();
+				else {
+					this.timePrePicked[n] = a;
+					const t = this.picker.ui.container.querySelector(".apply-button");
+					if(this.rangePlugin) {
+						const e = this.rangePlugin.options,
+							i = this.picker.datePicked,
+							n = e.strict && 2 === i.length || !e.strict && i.length > 0 || !i.length && e.strict && e.startDate instanceof Date && e.endDate instanceof Date || !i.length && !e.strict && (e.startDate instanceof Date || e.endDate instanceof Date);
+						t.disabled = !n
+					} else this.picker.datePicked.length && (t.disabled = !1)
+				}
+			}
+		}
+		onClick(t) {
+			const e = t.target;
+			if(e instanceof HTMLElement) {
+				const t = e.closest(".unit");
+				if(!(t instanceof HTMLElement)) return;
+				this.picker.isApplyButton(t) && (Object.keys(this.timePicked).forEach((t => {
+					this.timePrePicked[t] instanceof Date && (this.timePicked[t] = this.timePrePicked[t].clone())
+				})), this.picker.updateValues(), this.timePrePicked = {
+					input: null,
+					start: null,
+					end: null
+				}), this.picker.isCancelButton(t) && (this.timePrePicked = {
+					input: null,
+					start: null,
+					end: null
+				}, this.picker.renderAll())
+			}
+		}
+		setTime(t) {
+			const e = this.handleTimeString(t);
+			this.timePicked.input = e.clone(), this.picker.renderAll(), this.picker.updateValues()
+		}
+		setStartTime(t) {
+			const e = this.handleTimeString(t);
+			this.timePicked.start = e.clone(), this.picker.renderAll(), this.picker.updateValues()
+		}
+		setEndTime(t) {
+			const e = this.handleTimeString(t);
+			this.timePicked.end = e.clone(), this.picker.renderAll(), this.picker.updateValues()
+		}
+		handleTimeString(t) {
+			const i = new e,
+				[n, s, o] = t.split(":").map((t => Number(t))),
+				a = n && !Number.isNaN(n) ? n : 0,
+				r = s && !Number.isNaN(s) ? s : 0,
+				c = o && !Number.isNaN(o) ? o : 0;
+			return i.setHours(a, r, c, 0), i
+		}
+		getDate() {
+			if(this.picker.options.date instanceof Date) {
+				const t = new e(this.picker.options.date, this.picker.options.format);
+				if(this.timePicked.input instanceof Date) {
+					const e = this.timePicked.input;
+					t.setHours(e.getHours(), e.getMinutes(), e.getSeconds(), 0)
+				}
+				return t
+			}
+			return null
+		}
+		getStartDate() {
+			if(this.rangePlugin.options.startDate instanceof Date) {
+				const t = new e(this.rangePlugin.options.startDate, this.picker.options.format);
+				if(this.timePicked.start instanceof Date) {
+					const e = this.timePicked.start;
+					t.setHours(e.getHours(), e.getMinutes(), e.getSeconds(), 0)
+				}
+				return t
+			}
+			return null
+		}
+		getEndDate() {
+			if(this.rangePlugin.options.endDate instanceof Date) {
+				const t = new e(this.rangePlugin.options.endDate, this.picker.options.format);
+				if(this.timePicked.end instanceof Date) {
+					const e = this.timePicked.end;
+					t.setHours(e.getHours(), e.getMinutes(), e.getSeconds(), 0)
+				}
+				return t
+			}
+			return null
+		}
+		getSingleInput() {
+			return this.options.native ? this.getNativeInput("input") : this.getCustomInput("input")
+		}
+		getStartInput() {
+			return this.options.native ? this.getNativeInput("start") : this.getCustomInput("start")
+		}
+		getEndInput() {
+			return this.options.native ? this.getNativeInput("end") : this.getCustomInput("end")
+		}
+		getNativeInput(t) {
+			const e = document.createElement("input");
+			e.type = "time", e.name = t, e.className = "time-plugin-input unit";
+			const i = this.timePicked[t];
+			if(i) {
+				const t = `0${i.getHours()}`.slice(-2),
+					n = `0${i.getMinutes()}`.slice(-2);
+				e.value = `${t}:${n}`
+			}
+			return e
+		}
+		getCustomInput(t) {
+			const e = document.createElement("div");
+			e.className = "time-plugin-custom-block";
+			const i = document.createElement("select");
+			i.className = "time-plugin-custom-input unit", i.name = `${t}[HH]`;
+			const n = this.options.format12 ? 1 : 0,
+				s = this.options.format12 ? 13 : 24;
+			let o = null;
+			!this.picker.options.autoApply && this.timePrePicked[t] instanceof Date ? o = this.timePrePicked[t].clone() : this.timePicked[t] instanceof Date && (o = this.timePicked[t].clone());
+			for(let t = n; t < s; t += this.options.stepHours) {
+				const e = document.createElement("option");
+				e.value = String(t), e.text = String(t), o && (this.options.format12 ? (o.getHours() % 12 ? o.getHours() % 12 : 12) === t && (e.selected = !0) : o.getHours() === t && (e.selected = !0)), i.appendChild(e)
+			}
+			e.appendChild(i);
+			const a = document.createElement("select");
+			a.className = "time-plugin-custom-input unit", a.name = `${t}[mm]`;
+			for(let t = 0; t < 60; t += this.options.stepMinutes) {
+				const e = document.createElement("option");
+				e.value = `0${String(t)}`.slice(-2), e.text = `0${String(t)}`.slice(-2), o && o.getMinutes() === t && (e.selected = !0), a.appendChild(e)
+			}
+			if(e.appendChild(a), this.options.seconds) {
+				const i = document.createElement("select");
+				i.className = "time-plugin-custom-input unit", i.name = `${t}[ss]`;
+				const n = 60;
+				for(let t = 0; t < n; t += this.options.stepSeconds) {
+					const e = document.createElement("option");
+					e.value = `0${String(t)}`.slice(-2), e.text = `0${String(t)}`.slice(-2), o && o.getSeconds() === t && (e.selected = !0), i.appendChild(e)
+				}
+				e.appendChild(i)
+			}
+			if(this.options.format12) {
+				const i = document.createElement("select");
+				i.className = "time-plugin-custom-input unit", i.name = `${t}[period]`, ["AM", "PM"].forEach((t => {
+					const e = document.createElement("option");e.value = t,
+					e.text = t,
+					o && "PM" === t && o.getHours() >= 12 && (e.selected = !0),
+					i.appendChild(e)
+				})), e.appendChild(i)
+			}
+			return e
+		}
+		handleFormat12(t, e, i) {
+			const n = e.clone();
+			switch(t) {
+				case "AM":
+					12 === i ? n.setHours(0, n.getMinutes(), n.getSeconds(), 0) : n.setHours(i, n.getMinutes(), n.getSeconds(), 0);
+					break;
+				case "PM":
+					12 !== i ? n.setHours(i + 12, n.getMinutes(), n.getSeconds(), 0) : n.setHours(i, n.getMinutes(), n.getSeconds(), 0)
+			}
+			return n
+		}
+		parseValues() {
+			if(this.rangePlugin) {
+				if(this.rangePlugin.options.strict) {
+					if(this.rangePlugin.options.startDate && this.rangePlugin.options.endDate) {
+						const t = new e(this.rangePlugin.options.startDate, this.picker.options.format),
+							i = new e(this.rangePlugin.options.endDate, this.picker.options.format);
+						this.timePicked.start = t.clone(), this.timePicked.end = i.clone()
+					}
+				} else {
+					if(this.rangePlugin.options.startDate) {
+						const t = new e(this.rangePlugin.options.startDate, this.picker.options.format);
+						this.timePicked.start = t.clone()
+					}
+					if(this.rangePlugin.options.endDate) {
+						const t = new e(this.rangePlugin.options.endDate, this.picker.options.format);
+						this.timePicked.end = t.clone()
+					}
+				}
+				if(this.rangePlugin.options.elementEnd)
+					if(this.rangePlugin.options.strict) {
+						if(this.picker.options.element instanceof HTMLInputElement && this.picker.options.element.value.length && this.rangePlugin.options.elementEnd instanceof HTMLInputElement && this.rangePlugin.options.elementEnd.value.length) {
+							const t = new e(this.picker.options.element.value, this.picker.options.format),
+								i = new e(this.rangePlugin.options.elementEnd.value, this.picker.options.format);
+							this.timePicked.start = t.clone(), this.timePicked.end = i.clone()
+						}
+					} else {
+						if(this.picker.options.element instanceof HTMLInputElement && this.picker.options.element.value.length) {
+							const t = new e(this.picker.options.element.value, this.picker.options.format);
+							this.timePicked.start = t.clone()
+						}
+						if(this.rangePlugin.options.elementEnd instanceof HTMLInputElement && this.rangePlugin.options.elementEnd.value.length) {
+							const t = new e(this.rangePlugin.options.elementEnd.value, this.picker.options.format);
+							this.timePicked.start = t.clone()
+						}
+					} else if(this.picker.options.element instanceof HTMLInputElement && this.picker.options.element.value.length) {
+					const [t, i] = this.picker.options.element.value.split(this.rangePlugin.options.delimiter);
+					if(this.rangePlugin.options.strict) {
+						if(t && i) {
+							const n = new e(t, this.picker.options.format),
+								s = new e(i, this.picker.options.format);
+							this.timePicked.start = n.clone(), this.timePicked.end = s.clone()
+						}
+					} else {
+						if(t) {
+							const i = new e(t, this.picker.options.format);
+							this.timePicked.start = i.clone()
+						}
+						if(i) {
+							const t = new e(i, this.picker.options.format);
+							this.timePicked.start = t.clone()
+						}
+					}
+				}
+			} else {
+				if(this.picker.options.date) {
+					const t = new e(this.picker.options.date, this.picker.options.format);
+					this.timePicked.input = t.clone()
+				}
+				if(this.picker.options.element instanceof HTMLInputElement && this.picker.options.element.value.length) {
+					const t = new e(this.picker.options.element.value, this.picker.options.format);
+					this.timePicked.input = t.clone()
+				}
+			}
+		}
+	}, t.create = s, t.easepick = o, Object.defineProperty(t, "__esModule", {
+		value: !0
+	})
+}));
