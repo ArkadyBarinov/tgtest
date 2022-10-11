@@ -613,3 +613,7 @@ font-size: 18px;
     --color-border-default: #373e47;
     --color-border-locked: #2d333b;
 }
+.previous-button {
+    background-color: #111;
+    align-self:flex-end
+}
