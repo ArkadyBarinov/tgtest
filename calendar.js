@@ -433,9 +433,9 @@
 			const e = document.createElement("div");
 			e.className = "header";
 			const i = document.createElement("div");
-			i.className = "month-name", i.innerHTML = `<span>${t.toLocaleString(this.picker.options.lang,{month:"long"})}</span> ${t.format("YYYY")}`, e.appendChild(i);
-			const n = document.createElement("button");
+            const n = document.createElement("button");
 			n.className = "previous-button unit", n.innerHTML = this.picker.options.locale.previousMonth, e.appendChild(n);
+			i.className = "month-name", i.innerHTML = `<span>${t.toLocaleString(this.picker.options.lang,{month:"long"})}</span> ${t.format("YYYY")}`, e.appendChild(i);
 			const s = document.createElement("button");
 			return s.className = "next-button unit", s.innerHTML = this.picker.options.locale.nextMonth, e.appendChild(s), e
 		}
