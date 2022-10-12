@@ -565,8 +565,8 @@
 			inline: !1,
 			scrollToDate: !0,
 			locale: {
-				nextMonth: '<svg width="11" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M2.748 16L0 13.333 5.333 8 0 2.667 2.748 0l7.919 8z" fill-rule="nonzero"/></svg>',
-				previousMonth: '<svg width="11" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M7.919 0l2.748 2.667L5.333 8l5.334 5.333L7.919 16 0 8z" fill-rule="nonzero"/></svg>',
+				nextMonth: '<svg width="17" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M0.5 6.92V8.92H12.5L7 14.42L8.42 15.84L16.34 7.92L8.42 0L7 1.42L12.5 6.92H0.5Z" fill-rule="nonzero"/></svg>',
+				previousMonth: '<svg width="17" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M16.4999 6.99996V8.99996H4.49991L9.99991 14.5L8.57991 15.92L0.659912 7.99996L8.57991 0.0799561L9.99991 1.49996L4.49991 6.99996H16.4999Z" fill-rule="nonzero"/></svg>',
 				cancel: "Cancel",
 				apply: "Apply"
 			},
