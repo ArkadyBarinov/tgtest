@@ -1,6 +1,6 @@
 :host {
     --color-bg-default: #fff;
-    --color-bg-secondary: #f9f9f9;
+    --color-bg-secondary: #FFFFFF;
     --color-fg-default: #333;
     --color-fg-primary: #28B1D7;
     --color-fg-secondary: #748194;
@@ -17,7 +17,7 @@
     --color-btn-primary-disabled-fg: #fff;
     --color-btn-primary-disabled-border: #a2b0ff;
     --color-btn-secondary-bg: #fff;
-    --color-btn-secondary-fg: #748194;
+    --color-btn-secondary-fg: black;
     --color-btn-secondary-border: #748194;
     --color-btn-secondary-hover-bg: #748194;
     --color-btn-secondary-hover-fg: #fff;
@@ -131,6 +131,9 @@ font-size: 18px;
     background-color: var(--color-btn-secondary-bg);
     border-color: var(--color-btn-secondary-border);
     color: var(--color-btn-secondary-fg);
+    border-radius: 12px 12px 12px 12px;
+    border: 2px solid black;
+    margin-bottom: 25px;
 }
 .container>footer .footer-buttons>button.cancel-button:hover {
     background-color: var(--color-btn-secondary-hover-bg);
