@@ -473,8 +473,7 @@
         .galka {
             z-index: 5;
             position: absolute;
-            top: 125px;
-            right: 25px;
+            right: 30px;
 
         }
         .cale {
@@ -729,6 +728,8 @@
         LABEL {
           cursor: pointer;
           user-select: none;
+          color: #6c6c6c;
+
         }
         
         .demo {
