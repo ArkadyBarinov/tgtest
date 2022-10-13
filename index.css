@@ -457,7 +457,7 @@
             cursor: pointer;
         }
         .vvodkolvoday {
-            margin-top: 40px;
+            margin-top: 24px;
         }
         .vibirotp1 {
             display:flex;
@@ -475,6 +475,7 @@
             z-index: 5;
             position: absolute;
             right: 30px;
+            padding: 6px
 
         }
         .cale {
