@@ -406,6 +406,7 @@
             align-items: flex-start;
             text-align: start;
             z-index: 1;
+            color: #6c6c6c;
         }
         .popup {
             /* display: flex;
@@ -728,7 +729,7 @@
         LABEL {
           cursor: pointer;
           user-select: none;
-          color: #6c6c6c;
+          /* color: #6c6c6c; */
 
         }
         
