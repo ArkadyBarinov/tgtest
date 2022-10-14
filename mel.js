@@ -21,7 +21,6 @@ fetch("/api.v3.change-user-otpusk", {
 };
 
 let userStr = JSON.stringify(userObj);
-
 console.log(userStr);
 console.log(userObj);
 
@@ -85,7 +84,6 @@ console.log(userObj);
   // let pic = document.createElement('img'); //создаем img
   // pic.src = tg.initDataUnsafe.user.photo_url; //задаём src
   // usercard.appendChild(pic); //добавляем элемент в карточку
-
   const qwe123 = document.querySelector("Ошибка╳");
   qwe123.addEventListener("click", (e) => {
     const { target } = e;
