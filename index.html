@@ -29,7 +29,10 @@
                     <p>Для оформления или переноса отпуска, заполните поля ниже.</p>
               </div>
             </div>
-            <p>Тип отпуска</p>
+            <div class="VibTypeOtp">
+               <span>Тип отпуска</span>   
+            </div>
+
             <div>
 
 
@@ -91,8 +94,8 @@
               
             </div>
             </div>
-            <div class="vvodkolvoday">
-              <p>Количество дней</p>
+            <div class="VibTypeOtp">
+              <span>Количество дней</span>
               <div>
               <input type="number" id="tentacles" name="tentacles" placeholder="Введите количество дней"
        min="1">
@@ -104,8 +107,8 @@
             </div>
       </div>
       <div class="formacalen">
-        <div class="fortodate">
-          <p>Дата отпуска</p>
+        <div class="VibTypeOtp">
+          <span>Дата отпуска</span>
         </div>
 <!-- календарь -->
       <div class="cale"><input id="datepicker" placeholder="Выберите дату начала отпуска">
@@ -149,7 +152,7 @@
       <div id="some-id" style="position: relative;">
       </div>
       <div class="GlButton" >
-        <input class="forma" type="submit" value="Сформировать заявление" onmousedown="viewshag2()">
+        <input class="forma" type="submit" value="Сформировать заявку" onmousedown="viewshag2()">
       </div>
     </div>
 </div>
@@ -167,12 +170,12 @@
           <rect width="24" height="24" fill="#28B1D7"/>
           </g>
           </svg>
-          <div>Проверьте введённые данные и отправьте заявление на подпись.</div>
+          <div>Проверьте введённые данные и отправьте заявление на согласование.</div>
   </div>
   </div>
     <div class="svodka">
       <div class="tip-otpyska">
-              <div class="shapka">Тип отпуска</div>
+              <div class="shapkaOsn">Тип отпуска</div>
               <div class="karandashik">
               <div class="material">Свой</div>
               <a   class="picture" href="#modals">
@@ -229,7 +232,7 @@
       </script>
       
       <div class="kolvo-day">
-              <div class="shapka">Количество дней</div>
+              <div class="shapkaOsn">Количество дней</div>
               <div class="karandashik">
               <div class="material">14</div>
                 <a   class="picture2" href="#modals2">
@@ -265,7 +268,7 @@
               </div>
       </div>
       <div class="half-life">
-              <div class="shapka">Период отпуска</div>
+              <div class="shapkaOsn">Период отпуска</div>
               <div class="karandashik">
               <div class="material">с 23 по 24</div>
               <a   class="picture3" href="#modals3">
@@ -315,7 +318,7 @@
   <div class="material">Олейник Роман Владимирович</div>
 </div>
   <div class="okonchatpodtvergdenie" >
-    <input class="forma" type="submit" value="Отправить заявление на подпись" onmousedown="viewshag3()">
+    <input class="forma" type="submit" value="Отправить на согласование" onmousedown="viewshag3()">
   </div>
 </div>
 
