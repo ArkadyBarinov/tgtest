@@ -753,5 +753,9 @@
           white-space: nowrap;
           text-decoration: underline;
         }
+        .errortypeOt {
+          color:red;
+          display: none;
+        }
         
       
