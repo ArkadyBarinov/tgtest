@@ -776,5 +776,12 @@
           font-size: 14px;
           line-height: 20px;
         }
-        
+        .okonchatpodtvergdenie {
+          display: flex;
+          flex-direction:row-reverse;
+          justify-content:center;
+        }
+        .Checkdann {
+          font-size: 14px;
+        }
       
