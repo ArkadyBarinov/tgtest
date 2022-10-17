@@ -47,7 +47,7 @@
         }
         .forma {
             display: block;
-            width: 100%;
+            width: 90%;
             font-size: 14px;
             margin: 15px 0;
             padding: 12px 20px;
@@ -60,6 +60,8 @@
             gap: 12px;
             height: 56px;
             z-index: 1;
+            position: fixed;
+            bottom: 20px;
         }
         button.close_btn {
             position: absolute;
