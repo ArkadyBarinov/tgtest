@@ -20,6 +20,43 @@
 </head>
 <body>
   <section>
+    <div id="modalsGl" class="wrappers">
+      <a class="substrates" href="#closes"></a>  
+        <form action="" class="popup"id="popup">
+          <div class="Shapka1">
+          <label class="Zayava" for="modal">Заявки</label>    
+           <a onmousedown="viewChange0()">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M14 1.41L12.59 0L7 5.59L1.41 0L0 1.41L5.59 7L0 12.59L1.41 14L7 8.41L12.59 14L14 12.59L8.41 7L14 1.41Z" fill="black"/>
+              </svg>
+              </a>
+            </div>
+           <div class="OtpandSpv">
+              <a class="closes1" href="#closes1">
+                <div class="SAO"  onmousedown="viewChange1()">
+                Отпуска
+            </div>
+            <div class="galkastart1">
+              <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M0.580078 10.59L5.17008 6L0.580078 1.41L2.00008 0L8.00008 6L2.00008 12L0.580078 10.59Z" fill="black"/>
+                </svg>                
+            </div>
+          </a>
+          <a class="closes1" href="#closes1">
+            <div class="SAO"  onmousedown="viewChange2()">
+            Справки
+        </div>
+        <div class="galkastart2">
+          <svg width="8" height="12" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M0.580078 10.59L5.17008 6L0.580078 1.41L2.00008 0L8.00008 6L2.00008 12L0.580078 10.59Z" fill="black"/>
+            </svg>
+        </div>
+      </a>
+           </div>
+        </form>
+    </div>
+  </section>
+<section>
 <div id="podachazaevleniy"> 
     <div>
       <div class="typeOT">
@@ -187,9 +224,7 @@
                 </g>
                 </svg>
                 <div id="modals" class="wrappers">
-                  <a class="substrates" href="#closes"></a>
-                    <div>        
-                      </div>    
+                  <a class="substrates" href="#closes"></a>  
                     <form action="" class="popup"id="popup" onmousedown="viewpoput()">
                       <label class="btn1" for="modal">Выберите тип отпуска</label>    
                       <div class="vibirotp" onmousedown="viewpoput()">
@@ -339,6 +374,11 @@
     <p>Спасибо что выбрали нас</p>
   </div>
 </section>
+<section>
+  <div id="Spravkis">
+    <p>Данный раздел находится в разработке</p>
+  </div>
+</section>
 <script>
   function viewshag2(){
   document.getElementById("podachazaevleniy").style.display = "none";
@@ -359,4 +399,26 @@
 <script>
    let tg = window.Telegram.WebApp;
     tg.expand();
+</script>
+<script>
+  function viewpoputs(){
+  document.getElementById("poputs").style.display = "none";
+};
+</script>
+<script>
+  function viewChange1(){
+  document.getElementById("modalsGl").style.display = "none";
+  document.getElementById("podachazaevleniy").style.display = "flex";
+};
+</script>
+<script>
+  function viewChange2(){
+  document.getElementById("modalsGl").style.display = "none";
+  document.getElementById("Spravkis").style.display = "flex";
+};
+</script>
+<script>
+  function viewChange0(){
+  document.getElementById("modalsGl").style.display = "none";
+};
 </script>
