@@ -7,74 +7,74 @@
           height: 100%;
         }
         body {
-            font-family: sans-serif;
-            font-size: 16px;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 18px;
-            background-color: #f3f3f3;
+          font-family: sans-serif;
+          font-size: 16px;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          font-size: 18px;
+          background-color: #f3f3f3;
         }
-      .button{
-         border: none;
-         font-size: 18px;
-      }
-      .button:not(:last-child){
-         margin-bottom: 20px
-      }
+        .button{
+          border: none;
+          font-size: 18px;
+        }
+        .button:not(:last-child){
+          margin-bottom: 20px
+        }
 
-      #usercard{
-         text-align: center;
-      }
+        #usercard{
+          text-align: center;
+        }
         button {
-            display: block;
-            width: 100%;
-            font-size: 14px;
-            margin: 15px 0;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            background-color:#50a8eb;
-            color: #ffffff;
-            cursor: pointer;
+          display: block;
+          width: 100%;
+          font-size: 14px;
+          margin: 15px 0;
+          padding: 12px 20px;
+          border: none;
+          border-radius: 4px;
+          background-color:#50a8eb;
+          color: #ffffff;
+          cursor: pointer;
         }
         button[disabled] {
-            opacity: 0.6;
-            cursor: auto;
-            pointer-events: none;
+          opacity: 0.6;
+          cursor: auto;
+          pointer-events: none;
         }
         .forma {
-            display: block;
-            width: 90%;
-            font-size: 14px;
-            margin: 15px 0;
-            padding: 12px 20px;
-            border: none;
-            color: #ffffff;
-            cursor: pointer;
-            background: #000000;
-            border-radius: 8px;
-            padding: 16px;
-            gap: 12px;
-            height: 56px;
-            z-index: 1;
-            position: fixed;
-            bottom: 20px;
+          display: block;
+          width: 90%;
+          font-size: 14px;
+          margin: 15px 0;
+          padding: 12px 20px;
+          border: none;
+          color: #ffffff;
+          cursor: pointer;
+          background: #000000;
+          border-radius: 8px;
+          padding: 16px;
+          gap: 12px;
+          height: 56px;
+          z-index: 1;
+          position: fixed;
+          bottom: 20px;
         }
         button.close_btn {
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border-radius: 0;
-            margin: 0;
-            padding: 16px 20px;
-            text-transform: uppercase;
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          border-radius: 0;
+          margin: 0;
+          padding: 16px 20px;
+          text-transform: uppercase;
         }
         section {
-            text-align: center;
+          text-align: center;
         }
         .qs-datepicker-container {
           display:block;
@@ -91,29 +91,29 @@
           background: #404040;
         }
         .forma:focus {
-        outline: none;
+          outline: none;
         }
         .forma:active {
-        background: #595959;
+          background: #595959;
         }
         #datepicker {
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 12px 8px;
-        gap: 8px;
-        width: 100%;
-        height: 48px;
-        border: 2px solid #B3B3B3;
-        border-radius: 8px;
-        flex: none;
-        order: 1;
-        align-self: stretch;
-        flex-grow: 0;
-        font-size: 16px;
-        margin: -10px 0px 24px 0px;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          padding: 12px 8px;
+          gap: 8px;
+          width: 100%;
+          height: 48px;
+          border: 2px solid #B3B3B3;
+          border-radius: 8px;
+          flex: none;
+          order: 1;
+          align-self: stretch;
+          flex-grow: 0;
+          font-size: 16px;
+          margin: -10px 0px 24px 0px;
         }
         .input {
           position: relative;
@@ -121,7 +121,7 @@
           margin-top: 20px;
         }
         .input.forma {
-            width: 100%;
+          width: 100%;
         } 
         .iconka {
           position:absolute;
@@ -147,7 +147,6 @@
           user-select: none;
           background-color: #ffffff;
         }
-
         .formRadio input[type=radio]:checked + label {
           background: #FFFFFF;
           font-weight: 900;
@@ -188,7 +187,6 @@
         }
         /* стили при наведении курсора на радио */
         .put:not(:disabled):not(:checked)+label:hover::before {
-
           background: #F2F2F2;
           border: 1px solid  #000000;
         }
@@ -376,112 +374,114 @@
         }
         #Spravkis {
           display: none;
-      }
-        .sformirovano {
-            margin-bottom: 8px;
-            margin-top: 16px;
         }
+        .sformirovano {
+          margin-bottom: 8px;
+          margin-top: 16px;
+        }
+
         *{
 
         }
         .wrappers {
-            margin: 0 auto;
-            font-family: Arial;
-            display: block;
+          margin: 0 auto;
+          font-family: Arial;
+          display: block;
          }
         .btn {
-            box-sizing: border-box;
-            padding:12px 8px;
-            cursor: pointer;
-            font-size: 16px;
-            gap: 8px;
-            width: 100%;
-            height: 48px;
-            background: #FFFFFF;
-            border: 2px solid #B3B3B3;
-            border-radius: 8px;
-            flex: none;
-            order: 1;
-            align-self: stretch;
-            flex-grow: 0;
-            display: block;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            text-align: start;
-            z-index: 1;
-            color: #6c6c6c;
-            margin: 8px 0px 24px 0px;
+          box-sizing: border-box;
+          padding:12px 8px;
+          cursor: pointer;
+          font-size: 16px;
+          gap: 8px;
+          width: 100%;
+          height: 48px;
+          background: #FFFFFF;
+          border: 2px solid #B3B3B3;
+          border-radius: 8px;
+          flex: none;
+          order: 1;
+          align-self: stretch;
+          flex-grow: 0;
+          display: block;
+          flex-direction: column;
+          justify-content: center;
+          align-items: flex-start;
+          text-align: start;
+          z-index: 1;
+          color: #6c6c6c;
+          margin: 8px 0px 24px 0px;
         }
         .popup {
-            /* display: flex;
-            flex-direction:column;
-    justify-content: space-between; */
-            margin: 0 auto;
-            width: 100%;
-            background-color:  white;
-            padding: 30px;
-            position: fixed;
-            left: 0;
-            bottom: 0px;
-            z-index: 2;
+          /* display: flex;
+          flex-direction:column;
+          justify-content: space-between; */
+          margin: 0 auto;
+          width: 100%;
+          background-color: white;
+          padding: 30px;
+          position: fixed;
+          left: 0;
+          bottom: 0px;
+          z-index: 2;
+          border-radius: 12px 12px 0px 0px;
         }
         .popup input{
-            display: block;
-            border: none;
-            line-height: 25px;
+          display: block;
+          border: none;
+          line-height: 25px;
         }
         .submit {
-            background-color: #fff;
-            cursor: pointer; 
-            text-align: start;
-            margin-bottom: 10px;
+          background-color: #fff;
+          cursor: pointer; 
+          text-align: start;
+          margin-bottom: 10px;
         }
         #modal {
-            display: none;
-            z-index: 101;
+          display: none;
+          z-index: 101;
         }
         #modal:checked ~ .popup {
-            display:none;
-            z-index: 101;
+          display:none;
+          z-index: 101;
         }
         #modal:checked + label span{
           content: 'другой текст';
         }
         .closetype {
-            position:absolute;
-            top:5px;
-            right: 10px;
-            transform: rotate(45deg);
-            font-size: 24px;
-            cursor: pointer;
+          position:absolute;
+          top:5px;
+          right: 10px;
+          transform: rotate(45deg);
+          font-size: 24px;
+          cursor: pointer;
         }
         .vvodkolvoday {
-            margin-top: 24px;
+          margin-top: 24px;
         }
         .vibirotp1 {
-            display:flex;
-            justify-content: space-between
+          display:flex;
+          justify-content: space-between
         }
         .wradio {
-            display:flex;
-            justify-content: space-between
+          display:flex;
+          justify-content: space-between
         }
         .fortodate {
-            margin-top: 14px;
-            margin-bottom: -14px;
+          margin-top: 14px;
+          margin-bottom: -14px;
         }
         .galka {
-            z-index: 5;
-            position: absolute;
-            right: 30px;
-            padding: 6px
+          z-index: 5;
+          position: absolute;
+          right: 30px;
+          padding: 6px
 
         }
         .cale {
-            position: relative;
-            display:block;
-            margin-top: 20px;
+          position: relative;
+          display:block;
+          margin-top: 20px;
         }
         .podtverdit {
           display: flex;
@@ -524,40 +524,40 @@
           background: #404040;
         }
         .save:focus {
-        outline: none;
+          outline: none;
         }
         .save:active {
-        background: #595959;
+          background: #595959;
         }
         .picture { /* Это картинка <a class="picture" href="#modal"> красного цвета*/
           width: 24px;
           height: 24px;  
         }
         .wrappers  { /* Это прозрачная обертка <div id="modal" class="wrapper">, растянутая по всему экрану и находящаяся поверх всех элементов страницы*/
-            width: 100vw;
-            height: 100vh;
-            background-color: transparent; 
-            position: absolute;
-            top: 0;
-            left: 0;  
+          width: 100vw;
+          height: 100vh;
+          background-color: transparent; 
+          position: absolute;
+          top: 0;
+          left: 0;  
         } 
         .substrates { /* Это подложка  <a class="substrate" href="#close"> серого цвета с прозрачностью, растянутая по границам обертки <div id="modal" class="wrapper">*/
-            width: 100%;
-            height: 100%;
-            background-color: rgba(100, 100, 100, 0.6);   
-            position: absolute;
-            top:0;
-            left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(100, 100, 100, 0.6);   
+          position: absolute;
+          top:0;
+          left: 0;
         }
         .blocks { /* Это блок  <div class="block"> синего цвета внутри обертки <div id="modal" class="wrapper">*/
-            width: 100px;
-            height: 100px;
-            background-color: rgba(0, 0, 255, 1);   
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            margin-left: -50px;
-            margin-top: -50px;
+          width: 100px;
+          height: 100px;
+          background-color: rgba(0, 0, 255, 1);   
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          margin-left: -50px;
+          margin-top: -50px;
         }
         .closes { /* Это закрывашка <a class="close" href="#close"> блока <div class="block"> , обозначенная крестиком*/ 
           position:absolute;
@@ -569,43 +569,42 @@
           color:rgba(100, 100, 100, 0.6)  
         }
         #modals { /* Это состояние обертки (модального окна), когда оно в "покое": его не видно и на она не реагирует на нажатие*/        
-            display: none;
-            pointer-events: none;  
+          display: none;
+          pointer-events: none;  
         }
         #modals:target{  /* Это состояние обертки (модального окна), когда мы на него ссылаемся, нажимая на карктинку <a class="picture" href="#modal">: обертка становится видимой и с ней можно манипулировать мышью*/            
-            display: block;
-            pointer-events: auto;    
+          display: block;
+          pointer-events: auto;    
         }
-
         .picture2 { /* Это картинка <a class="picture" href="#modal"> красного цвета*/
           width: 24px;
           height: 24px; 
         }
         .wrappers2  { /* Это прозрачная обертка <div id="modal" class="wrapper">, растянутая по всему экрану и находящаяся поверх всех элементов страницы*/
-            width: 100vw;
-            height: 100vh;
-            background-color: transparent; 
-            position: absolute;
-            top: 0;
-            left: 0;  
+          width: 100vw;
+          height: 100vh;
+          background-color: transparent; 
+          position: absolute;
+          top: 0;
+          left: 0;  
         } 
         .substrates2 { /* Это подложка  <a class="substrate" href="#close"> серого цвета с прозрачностью, растянутая по границам обертки <div id="modal" class="wrapper">*/
-            width: 100%;
-            height: 100%;
-            background-color: rgba(100, 100, 100, 0.6);   
-            position: absolute;
-            top:0;
-            left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(100, 100, 100, 0.6);   
+          position: absolute;
+          top:0;
+          left: 0;
         }
         .blocks2 { /* Это блок  <div class="block"> синего цвета внутри обертки <div id="modal" class="wrapper">*/
-            width: 100px;
-            height: 100px;
-            background-color: rgba(0, 0, 255, 1);   
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            margin-left: -50px;
-            margin-top: -50px;
+          width: 100px;
+          height: 100px;
+          background-color: rgba(0, 0, 255, 1);   
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          margin-left: -50px;
+          margin-top: -50px;
         }
         .closes2 { /* Это закрывашка <a class="close" href="#close"> блока <div class="block"> , обозначенная крестиком*/ 
           position:absolute;
@@ -617,12 +616,12 @@
           text-decoration: none;  
         }
         #modals2 { /* Это состояние обертки (модального окна), когда оно в "покое": его не видно и на она не реагирует на нажатие*/        
-            display: none;
-            pointer-events: none;  
+          display: none;
+          pointer-events: none;  
         }
         #modals2:target{  /* Это состояние обертки (модального окна), когда мы на него ссылаемся, нажимая на карктинку <a class="picture" href="#modal">: обертка становится видимой и с ней можно манипулировать мышью*/            
-            display: block;
-            pointer-events: auto;    
+          display: block;
+          pointer-events: auto;    
         }
         .btn1 {
           font-family: 'Montserrat';
@@ -636,30 +635,30 @@
           height: 24px; 
         }
         .wrappers3  { /* Это прозрачная обертка <div id="modal" class="wrapper">, растянутая по всему экрану и находящаяся поверх всех элементов страницы*/
-            width: 100vw;
-            height: 100vh;
-            background-color: transparent; 
-            position: absolute;
-            top: 0;
-            left: 0;  
+          width: 100vw;
+          height: 100vh;
+          background-color: transparent; 
+          position: absolute;
+          top: 0;
+          left: 0;  
         } 
         .substrates3 { /* Это подложка  <a class="substrate" href="#close"> серого цвета с прозрачностью, растянутая по границам обертки <div id="modal" class="wrapper">*/
-            width: 100%;
-            height: 100%;
-            background-color: rgba(100, 100, 100, 0.6);   
-            position: absolute;
-            top:0;
-            left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(100, 100, 100, 0.6);   
+          position: absolute;
+          top:0;
+          left: 0;
         }
         .blocks3 { /* Это блок  <div class="block"> синего цвета внутри обертки <div id="modal" class="wrapper">*/
-            width: 100px;
-            height: 100px;
-            background-color: rgba(0, 0, 255, 1);   
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            margin-left: -50px;
-            margin-top: -50px;
+          width: 100px;
+          height: 100px;
+          background-color: rgba(0, 0, 255, 1);   
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          margin-left: -50px;
+          margin-top: -50px;
         }
         .closes3 { /* Это закрывашка <a class="close" href="#close"> блока <div class="block"> , обозначенная крестиком*/ 
           position:absolute;
@@ -671,18 +670,18 @@
           text-decoration: none;  
         }
         #modals3 { /* Это состояние обертки (модального окна), когда оно в "покое": его не видно и на она не реагирует на нажатие*/        
-            display: none;
-            pointer-events: none;  
+          display: none;
+          pointer-events: none;  
         }
         #modals3:target{  /* Это состояние обертки (модального окна), когда мы на него ссылаемся, нажимая на карктинку <a class="picture" href="#modal">: обертка становится видимой и с ней можно манипулировать мышью*/            
-            display: block;
-            pointer-events: auto;    
+          display: block;
+          pointer-events: auto;    
         }
         .close {
           width: 100%;
-            font-size: 24px;
-            cursor: pointer;
-            text-decoration: none;  
+          font-size: 24px;
+          cursor: pointer;
+          text-decoration: none;  
         }
         .formacalen {
           width: 100%;
@@ -696,11 +695,9 @@
         #w3:checked + label span {
           content: 'Другое';
         }
-        
         .new-input > INPUT[type="radio"] + S::before {
           content: "Svoy";
         }
-        
         .new-input > INPUT[type="radio"]:checked + S::before {
           content: "Oplach";
         }
@@ -709,13 +706,10 @@
           margin-left: 3px;
           margin-right: 6px;
         }
-        
         .new-input > S::before {
           display: inline-block;
-
           text-align: center;
         }
-        
         HTML,
         BODY {
           box-sizing: border-box;
@@ -725,14 +719,11 @@
         *::after {
           box-sizing: inherit;
         }
-        
         LABEL {
           cursor: pointer;
           user-select: none;
           /* color: #6c6c6c; */
-
         }
-        
         .demo {
           display: flex;
           flex-direction: row;
@@ -745,7 +736,6 @@
         #no_input:checked ~ .row INPUT {
           display: none;
         }
-        
         #use_bgc:checked ~ .row > div {
           background-color: #eceff1;
         }
@@ -755,7 +745,6 @@
         #top_center:checked ~ .row LABEL {
           align-items: center;
         }
-        
         .row0 > LABEL {
           white-space: nowrap;
           text-decoration: underline;
@@ -815,9 +804,6 @@
         .closes1 {
           margin: 0px 0px 0px 1px;
         }
-        .OtpandSpv {
-
-        }
         .galkastart1 {
           z-index: 5;
           position: absolute;
@@ -831,5 +817,12 @@
           right: 42px;
           padding: 6px;
           top: 167px;
+        }
+        .galkastart3 {
+          z-index: 5;
+          position: absolute;
+          right: 42px;
+          padding: 6px;
+          top: 244px;
         }
       
